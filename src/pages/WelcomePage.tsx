@@ -15,9 +15,14 @@ export function WelcomePage() {
         <span className="welcome-role">{user.rol}</span>
 
         {tieneRol(user.rol, 'ADMIN') && (
-          <Link to="/usuarios" className="welcome-link">
-            Gestionar usuarios
-          </Link>
+          <>
+            <Link to="/plazas" className="welcome-link">
+              Gestionar plazas
+            </Link>
+            <Link to="/usuarios" className="welcome-link">
+              Gestionar usuarios
+            </Link>
+          </>
         )}
 
         <button type="button" className="welcome-logout" onClick={logout}>

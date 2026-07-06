@@ -6,6 +6,9 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { WelcomePage } from './pages/WelcomePage';
 import { UsuariosPage } from './pages/UsuariosPage';
+import { PlazasPage } from './pages/PlazasPage';
+import { PlazaDetailPage } from './pages/PlazaDetailPage';
+import { FechaDetailPage } from './pages/FechaDetailPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -22,6 +25,9 @@ function AppRoutes() {
       </Route>
       <Route element={<ProtectedRoute requiredRole="ADMIN" />}>
         <Route path="/usuarios" element={<UsuariosPage />} />
+        <Route path="/plazas" element={<PlazasPage />} />
+        <Route path="/plazas/:plazaId" element={<PlazaDetailPage />} />
+        <Route path="/fechas/:fechaId" element={<FechaDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

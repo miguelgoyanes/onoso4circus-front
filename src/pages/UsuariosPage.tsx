@@ -1,5 +1,4 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { ApiError } from '../api/client';
 import {
@@ -12,6 +11,7 @@ import {
   type Rol,
   type UsuarioPublico,
 } from '../api/usuarios';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import './UsuariosPage.css';
 
 const ROLES: Rol[] = ['ADMIN', 'OPERADOR'];
@@ -156,10 +156,8 @@ export function UsuariosPage() {
     <div className="usuarios-page">
       <div className="usuarios-container">
         <div className="usuarios-header">
+          <Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Usuarios' }]} />
           <h1>Gestión de usuarios</h1>
-          <Link to="/" className="usuarios-back">
-            ← Volver
-          </Link>
         </div>
 
         {error && <p className="usuarios-error">{error}</p>}
