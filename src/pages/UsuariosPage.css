@@ -1,0 +1,266 @@
+.usuarios-page {
+  min-height: 100dvh;
+  padding: var(--space-6) var(--space-4) var(--space-8);
+  display: flex;
+  justify-content: center;
+}
+
+.usuarios-container {
+  width: 100%;
+  max-width: 720px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.usuarios-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.usuarios-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.usuarios-back {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.usuarios-back:hover {
+  color: var(--color-accent);
+}
+
+.usuarios-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.usuarios-crear-btn {
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: calc(var(--radius) - 4px);
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.usuarios-crear-btn:hover {
+  background: var(--color-accent-hover);
+}
+
+.usuarios-error {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-radius: calc(var(--radius) - 4px);
+  font-size: 0.85rem;
+}
+
+.usuarios-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-4);
+}
+
+.usuarios-form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.usuarios-field {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.usuarios-field input,
+.usuarios-field select {
+  font: inherit;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 4px);
+  padding: var(--space-2) var(--space-3);
+}
+
+.usuarios-form-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+.usuarios-form-cancel {
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 4px);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.usuarios-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.usuario-card {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-4);
+}
+
+.usuario-card.usuario-inactivo {
+  opacity: 0.6;
+}
+
+.usuario-info {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+
+.usuario-nombre {
+  font-weight: 600;
+}
+
+.usuario-username {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.usuario-badges {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: var(--space-1) var(--space-2);
+  border-radius: 999px;
+}
+
+.badge-rol {
+  color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+.badge-activo {
+  color: #16a34a;
+  background: color-mix(in srgb, #16a34a 15%, transparent);
+}
+
+.badge-inactivo {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.usuario-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.usuario-actions select {
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 4px);
+  padding: var(--space-1) var(--space-2);
+}
+
+.usuario-desactivar-btn {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 4px);
+  background: transparent;
+  color: var(--color-danger);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.usuario-desactivar-btn:hover:not(:disabled) {
+  border-color: var(--color-danger);
+}
+
+.usuario-activar-btn {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 4px);
+  background: transparent;
+  color: #16a34a;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.usuario-activar-btn:hover:not(:disabled) {
+  border-color: #16a34a;
+}
+
+.usuario-desactivar-btn:disabled,
+.usuario-activar-btn:disabled,
+.usuario-actions select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.usuario-reset-btn {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 4px);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.usuario-reset-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.usuarios-reset-form {
+  margin-top: calc(var(--space-2) * -1);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.usuarios-empty {
+  color: var(--color-text-muted);
+  text-align: center;
+  padding: var(--space-6) 0;
+}

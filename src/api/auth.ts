@@ -6,17 +6,17 @@ export interface LoginResponse {
 
 export interface JwtPayload {
   sub: string;
-  email: string;
+  username: string;
   rol: string;
   iat: number;
   exp: number;
 }
 
-export async function login(email: string, password: string): Promise<LoginResponse> {
+export async function login(username: string, password: string): Promise<LoginResponse> {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ username, password }),
   });
 
   if (!response.ok) {

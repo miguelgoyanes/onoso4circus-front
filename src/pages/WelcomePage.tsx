@@ -1,21 +1,26 @@
-import { decodeJwt } from '../api/auth';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
+import { tieneRol } from '../auth/roles';
 import './WelcomePage.css';
 
-interface WelcomePageProps {
-  accessToken: string;
-  onLogout: () => void;
-}
-
-export function WelcomePage({ accessToken, onLogout }: WelcomePageProps) {
-  const payload = decodeJwt(accessToken);
+export function WelcomePage() {
+  const { user, logout } = useAuth();
+  if (!user) return null;
 
   return (
     <div className="welcome-page">
       <div className="welcome-card">
         <h1>Bienvenido</h1>
-        <p className="welcome-email">{payload.email}</p>
-        <span className="welcome-role">{payload.rol}</span>
-        <button type="button" className="welcome-logout" onClick={onLogout}>
+        <p className="welcome-email">{user.username}</p>
+        <span className="welcome-role">{user.rol}</span>
+
+        {tieneRol(user.rol, 'ADMIN') && (
+          <Link to="/usuarios" className="welcome-link">
+            Gestionar usuarios
+          </Link>
+        )}
+
+        <button type="button" className="welcome-logout" onClick={logout}>
           Cerrar sesión
         </button>
       </div>

@@ -1,36 +1,43 @@
-import { useState } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeToggle } from './theme/ThemeToggle';
 import { useTheme } from './theme/useTheme';
+import { AuthProvider, useAuth } from './auth/AuthContext';
+import { ProtectedRoute } from './auth/ProtectedRoute';
 import { LoginPage } from './pages/LoginPage';
 import { WelcomePage } from './pages/WelcomePage';
+import { UsuariosPage } from './pages/UsuariosPage';
 
-const TOKEN_KEY = 'onoso4circus-token';
+function LoginRoute() {
+  const { accessToken, login } = useAuth();
+  if (accessToken) return <Navigate to="/" replace />;
+  return <LoginPage onLoginSuccess={login} />;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<LoginRoute />} />
+      <Route element={<ProtectedRoute />}>
+        <Route path="/" element={<WelcomePage />} />
+      </Route>
+      <Route element={<ProtectedRoute requiredRole="ADMIN" />}>
+        <Route path="/usuarios" element={<UsuariosPage />} />
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
 
 function App() {
   const { theme, toggleTheme } = useTheme();
-  const [accessToken, setAccessToken] = useState<string | null>(() =>
-    localStorage.getItem(TOKEN_KEY),
-  );
-
-  function handleLoginSuccess(token: string) {
-    localStorage.setItem(TOKEN_KEY, token);
-    setAccessToken(token);
-  }
-
-  function handleLogout() {
-    localStorage.removeItem(TOKEN_KEY);
-    setAccessToken(null);
-  }
 
   return (
-    <>
-      <ThemeToggle theme={theme} onToggle={toggleTheme} />
-      {accessToken ? (
-        <WelcomePage accessToken={accessToken} onLogout={handleLogout} />
-      ) : (
-        <LoginPage onLoginSuccess={handleLoginSuccess} />
-      )}
-    </>
+    <AuthProvider>
+      <BrowserRouter>
+        <ThemeToggle theme={theme} onToggle={toggleTheme} />
+        <AppRoutes />
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

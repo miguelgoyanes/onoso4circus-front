@@ -7,7 +7,7 @@ interface LoginPageProps {
 }
 
 export function LoginPage({ onLoginSuccess }: LoginPageProps) {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -17,7 +17,7 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
     setError(null);
     setLoading(true);
     try {
-      const { accessToken } = await login(email, password);
+      const { accessToken } = await login(username, password);
       onLoginSuccess(accessToken);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo iniciar sesión');
@@ -35,12 +35,12 @@ export function LoginPage({ onLoginSuccess }: LoginPageProps) {
         </div>
 
         <label className="login-field">
-          <span>Email</span>
+          <span>Usuario</span>
           <input
-            type="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            autoComplete="email"
+            type="text"
+            value={username}
+            onChange={(event) => setUsername(event.target.value)}
+            autoComplete="username"
             required
           />
         </label>
