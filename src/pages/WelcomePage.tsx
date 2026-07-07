@@ -22,6 +22,9 @@ export function WelcomePage() {
             <Link to="/usuarios" className="welcome-link">
               Gestionar usuarios
             </Link>
+            <Link to="/tesoreria" className="welcome-link">
+              Tesorería
+            </Link>
           </>
         )}
 

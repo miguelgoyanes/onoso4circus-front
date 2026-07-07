@@ -9,6 +9,7 @@ import { UsuariosPage } from './pages/UsuariosPage';
 import { PlazasPage } from './pages/PlazasPage';
 import { PlazaDetailPage } from './pages/PlazaDetailPage';
 import { FechaDetailPage } from './pages/FechaDetailPage';
+import { TesoreriaPage } from './pages/TesoreriaPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -28,6 +29,7 @@ function AppRoutes() {
         <Route path="/plazas" element={<PlazasPage />} />
         <Route path="/plazas/:plazaId" element={<PlazaDetailPage />} />
         <Route path="/fechas/:fechaId" element={<FechaDetailPage />} />
+        <Route path="/tesoreria" element={<TesoreriaPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
