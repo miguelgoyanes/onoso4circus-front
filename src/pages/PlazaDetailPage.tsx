@@ -228,9 +228,8 @@ export function PlazaDetailPage() {
                       className="crud-card-title crud-card-title-link"
                     >
                       {fecha.fecha}
-                      <span className="crud-card-chevron">›</span>
                     </Link>
-                    <div>
+                    <div className="crud-card-meta">
                       <span className="badge">{fecha.tipoActividad}</span>
                     </div>
                   </div>
@@ -250,6 +249,9 @@ export function PlazaDetailPage() {
                       Eliminar
                     </button>
                   </div>
+                  <span className="crud-card-chevron" aria-hidden="true">
+                    ›
+                  </span>
                 </div>
               )}
             </div>
@@ -267,11 +269,12 @@ export function PlazaDetailPage() {
             <div key={gasto.id} className="crud-card">
               <div className="crud-card-row">
                 <div className="crud-card-info">
-                  <div className="crud-card-title">
-                    {gasto.descripcion} <span className="badge">{gasto.categoriaPlaza}</span>
-                    {gasto.fechaId && <span className="badge">FECHA CONCRETA</span>}
+                  <div className="crud-card-title">{gasto.descripcion}</div>
+                  <div className="crud-card-meta">
+                    <span>{gasto.fecha}</span>
+                    <span className="badge">{gasto.categoriaPlaza}</span>
+                    {gasto.fechaId && <span className="badge badge-muted">FECHA CONCRETA</span>}
                   </div>
-                  <p className="crud-card-subtitle">{gasto.fecha}</p>
                 </div>
                 <div className="crud-card-actions">
                   <strong>{gasto.importeTotal} €</strong>

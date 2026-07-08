@@ -451,14 +451,17 @@ export function GastosPage() {
             <div key={gasto.id} className="crud-card">
               <div className="crud-card-row">
                 <div className="crud-card-info">
-                  <div className="crud-card-title">
-                    {gasto.descripcion} <span className="badge">{gasto.tipo}</span>
-                    <span className="badge">{gasto.estadoPago}</span>
+                  <div className="crud-card-title">{gasto.descripcion}</div>
+                  <div className="crud-card-meta">
+                    <span>{gasto.fecha}</span>
+                    <span className="badge">{gasto.tipo}</span>
+                    <span className={gasto.estadoPago === 'PENDIENTE_PAGO' ? 'badge badge-muted' : 'badge'}>
+                      {gasto.estadoPago}
+                    </span>
                     {gasto.categoriaPlaza && <span className="badge">{gasto.categoriaPlaza}</span>}
                     {gasto.categoriaGeneral && <span className="badge">{gasto.categoriaGeneral}</span>}
                     {gasto.empleadoId && <span className="badge">{gasto.empleadoId}</span>}
                   </div>
-                  <p className="crud-card-subtitle">{gasto.fecha}</p>
                 </div>
                 <div className="crud-card-actions">
                   <strong>{gasto.importeTotal} €</strong>

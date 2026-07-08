@@ -223,11 +223,12 @@ export function TesoreriaPage() {
             <div key={cuenta.id} className="crud-card">
               <div className="crud-card-row">
                 <div className="crud-card-info">
-                  <div className="crud-card-title">
-                    {cuenta.nombre} <span className="badge">{cuenta.code}</span>
+                  <div className="crud-card-title">{cuenta.nombre}</div>
+                  <div className="crud-card-meta">
+                    <span>{cuenta.type}</span>
+                    <span className="badge">{cuenta.code}</span>
                     {cuenta.esCuentaDeDinero && <span className="badge">DINERO</span>}
                   </div>
-                  <p className="crud-card-subtitle">{cuenta.type}</p>
                 </div>
                 <div className="crud-card-actions">
                   <strong>{cuenta.saldo} €</strong>

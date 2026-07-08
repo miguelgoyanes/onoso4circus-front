@@ -220,6 +220,7 @@
 }
 
 .crud-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -227,6 +228,22 @@
   border: 1px solid var(--color-border);
   border-radius: var(--radius);
   padding: var(--space-3) var(--space-4);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+/* Fila entera clicable: el <Link> del título se estira con ::after para
+   cubrir toda la tarjeta (patrón "stretched link"), así el usuario puede
+   pulsar en cualquier punto de la fila, no solo en el nombre. Los botones
+   de acción quedan por encima (z-index) para seguir siendo clicables aparte. */
+.crud-card:has(.crud-card-title-link) {
+  cursor: pointer;
+}
+
+.crud-card:has(.crud-card-title-link:hover) {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 5%, var(--color-bg-elevated));
 }
 
 .crud-card-row {
@@ -239,18 +256,26 @@
 .crud-card-info {
   flex: 1 1 200px;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
 .crud-card-title {
   font-weight: 600;
+  overflow-wrap: anywhere;
 }
 
 .crud-card-title-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
   color: var(--color-text);
   text-decoration: none;
+}
+
+.crud-card-title-link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
 }
 
 .crud-card-title-link:hover {
@@ -258,13 +283,14 @@
 }
 
 .crud-card-chevron {
+  flex-shrink: 0;
   color: var(--color-text-muted);
   transition:
     transform 0.15s ease,
     color 0.15s ease;
 }
 
-.crud-card-title-link:hover .crud-card-chevron {
+.crud-card-info:hover ~ .crud-card-chevron {
   color: var(--color-accent);
   transform: translateX(3px);
 }
@@ -276,6 +302,18 @@
   overflow-wrap: anywhere;
 }
 
+/* Fila de metadatos: sustituye a los "· texto · badge" amontonados a mano —
+   un único gap consistente entre texto plano y badges, con wrap en pantallas
+   estrechas. */
+.crud-card-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
 .badge {
   font-size: 0.7rem;
   font-weight: 600;
@@ -284,9 +322,17 @@
   border-radius: 999px;
   color: var(--color-accent);
   background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+  white-space: nowrap;
+}
+
+.badge-muted {
+  color: var(--color-text-muted);
+  background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
 }
 
 .crud-card-actions {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--space-2);

@@ -261,13 +261,13 @@ export function PersonalPage() {
                       className="crud-card-title crud-card-title-link"
                     >
                       {empleado.nombre}
-                      <span className="crud-card-chevron">›</span>
                     </Link>
-                    <p className="crud-card-subtitle">
-                      {empleado.rol} · <span className="badge">{empleado.regimen}</span>{' '}
-                      {empleado.importeReferenciaDia && `· ${empleado.importeReferenciaDia} €/día`}{' '}
-                      {!empleado.activo && <span className="badge">INACTIVO</span>}
-                    </p>
+                    <div className="crud-card-meta">
+                      <span>{empleado.rol}</span>
+                      <span className="badge">{empleado.regimen}</span>
+                      {empleado.importeReferenciaDia && <span>{empleado.importeReferenciaDia} €/día</span>}
+                      {!empleado.activo && <span className="badge badge-muted">INACTIVO</span>}
+                    </div>
                   </div>
                   <div className="crud-card-actions">
                     <button
@@ -295,6 +295,9 @@ export function PersonalPage() {
                       </button>
                     )}
                   </div>
+                  <span className="crud-card-chevron" aria-hidden="true">
+                    ›
+                  </span>
                 </div>
               )}
             </div>

@@ -225,11 +225,11 @@ export function PlazasPage() {
                       className="crud-card-title crud-card-title-link"
                     >
                       {plaza.nombre}
-                      <span className="crud-card-chevron">›</span>
                     </Link>
-                    <p className="crud-card-subtitle">
-                      {plaza.ubicacion} · <span className="badge">{plaza.tipoPlaza}</span>
-                    </p>
+                    <div className="crud-card-meta">
+                      <span>{plaza.ubicacion}</span>
+                      <span className="badge">{plaza.tipoPlaza}</span>
+                    </div>
                   </div>
                   <div className="crud-card-actions">
                     <button
@@ -247,6 +247,9 @@ export function PlazasPage() {
                       Eliminar
                     </button>
                   </div>
+                  <span className="crud-card-chevron" aria-hidden="true">
+                    ›
+                  </span>
                 </div>
               )}
             </div>
