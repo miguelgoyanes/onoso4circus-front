@@ -1,11 +1,13 @@
 import { apiFetch } from './client';
 
 export type TipoActividad = 'SHOW' | 'TALLER' | 'OTRO';
+export type TipoPlaza = 'CON_CIRCO' | 'SIN_CIRCO';
 
 export interface Plaza {
   id: string;
   nombre: string;
   ubicacion: string;
+  tipoPlaza: TipoPlaza;
 }
 
 export interface Fecha {
@@ -33,7 +35,7 @@ export function obtenerPlaza(token: string, id: string): Promise<Plaza> {
 
 export function crearPlaza(
   token: string,
-  data: { nombre: string; ubicacion: string },
+  data: { nombre: string; ubicacion: string; tipoPlaza?: TipoPlaza },
 ): Promise<Plaza> {
   return apiFetch<Plaza>('/plazas', token, { method: 'POST', body: JSON.stringify(data) });
 }
@@ -41,7 +43,7 @@ export function crearPlaza(
 export function actualizarPlaza(
   token: string,
   id: string,
-  data: { nombre: string; ubicacion: string },
+  data: { nombre: string; ubicacion: string; tipoPlaza?: TipoPlaza },
 ): Promise<Plaza> {
   return apiFetch<Plaza>(`/plazas/${id}`, token, { method: 'PATCH', body: JSON.stringify(data) });
 }

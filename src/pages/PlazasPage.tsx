@@ -2,9 +2,18 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { ApiError } from '../api/client';
-import { crearPlaza, eliminarPlaza, listarPlazas, actualizarPlaza, type Plaza } from '../api/plazas';
+import {
+  crearPlaza,
+  eliminarPlaza,
+  listarPlazas,
+  actualizarPlaza,
+  type Plaza,
+  type TipoPlaza,
+} from '../api/plazas';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import '../styles/crud-page.css';
+
+const TIPOS_PLAZA: TipoPlaza[] = ['CON_CIRCO', 'SIN_CIRCO'];
 
 export function PlazasPage() {
   const { accessToken, logout } = useAuth();
@@ -14,11 +23,13 @@ export function PlazasPage() {
   const [showForm, setShowForm] = useState(false);
   const [nombre, setNombre] = useState('');
   const [ubicacion, setUbicacion] = useState('');
+  const [tipoPlaza, setTipoPlaza] = useState<TipoPlaza>('CON_CIRCO');
   const [guardando, setGuardando] = useState(false);
 
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [editNombre, setEditNombre] = useState('');
   const [editUbicacion, setEditUbicacion] = useState('');
+  const [editTipoPlaza, setEditTipoPlaza] = useState<TipoPlaza>('CON_CIRCO');
 
   function handleApiError(err: unknown): void {
     if (err instanceof ApiError) {
@@ -52,9 +63,10 @@ export function PlazasPage() {
     setError(null);
     setGuardando(true);
     try {
-      await crearPlaza(accessToken, { nombre, ubicacion });
+      await crearPlaza(accessToken, { nombre, ubicacion, tipoPlaza });
       setNombre('');
       setUbicacion('');
+      setTipoPlaza('CON_CIRCO');
       setShowForm(false);
       await cargar();
     } catch (err) {
@@ -68,6 +80,7 @@ export function PlazasPage() {
     setEditandoId(plaza.id);
     setEditNombre(plaza.nombre);
     setEditUbicacion(plaza.ubicacion);
+    setEditTipoPlaza(plaza.tipoPlaza);
   }
 
   async function handleActualizar(event: FormEvent, id: string) {
@@ -75,7 +88,11 @@ export function PlazasPage() {
     if (!accessToken) return;
     setError(null);
     try {
-      await actualizarPlaza(accessToken, id, { nombre: editNombre, ubicacion: editUbicacion });
+      await actualizarPlaza(accessToken, id, {
+        nombre: editNombre,
+        ubicacion: editUbicacion,
+        tipoPlaza: editTipoPlaza,
+      });
       setEditandoId(null);
       await cargar();
     } catch (err) {
@@ -129,6 +146,19 @@ export function PlazasPage() {
                   required
                 />
               </label>
+              <label className="crud-field">
+                <span>Tipo de plaza</span>
+                <select
+                  value={tipoPlaza}
+                  onChange={(e) => setTipoPlaza(e.target.value as TipoPlaza)}
+                >
+                  {TIPOS_PLAZA.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </label>
             </div>
             <div className="crud-form-actions">
               <button type="submit" className="crud-btn-primary" disabled={guardando}>
@@ -161,6 +191,19 @@ export function PlazasPage() {
                       required
                     />
                   </label>
+                  <label className="crud-field">
+                    <span>Tipo de plaza</span>
+                    <select
+                      value={editTipoPlaza}
+                      onChange={(e) => setEditTipoPlaza(e.target.value as TipoPlaza)}
+                    >
+                      {TIPOS_PLAZA.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                   <div className="crud-form-actions">
                     <button
                       type="button"
@@ -184,7 +227,9 @@ export function PlazasPage() {
                       {plaza.nombre}
                       <span className="crud-card-chevron">›</span>
                     </Link>
-                    <p className="crud-card-subtitle">{plaza.ubicacion}</p>
+                    <p className="crud-card-subtitle">
+                      {plaza.ubicacion} · <span className="badge">{plaza.tipoPlaza}</span>
+                    </p>
                   </div>
                   <div className="crud-card-actions">
                     <button
