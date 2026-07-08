@@ -11,6 +11,8 @@ import { PlazaDetailPage } from './pages/PlazaDetailPage';
 import { FechaDetailPage } from './pages/FechaDetailPage';
 import { TesoreriaPage } from './pages/TesoreriaPage';
 import { GastosPage } from './pages/GastosPage';
+import { GastoDetailPage } from './pages/GastoDetailPage';
+import { CategoriasGastoPage } from './pages/CategoriasGastoPage';
 import { PersonalPage } from './pages/PersonalPage';
 import { EmpleadoDetailPage } from './pages/EmpleadoDetailPage';
 
@@ -34,6 +36,8 @@ function AppRoutes() {
         <Route path="/fechas/:fechaId" element={<FechaDetailPage />} />
         <Route path="/tesoreria" element={<TesoreriaPage />} />
         <Route path="/gastos" element={<GastosPage />} />
+        <Route path="/gastos/categorias" element={<CategoriasGastoPage />} />
+        <Route path="/gastos/:gastoId" element={<GastoDetailPage />} />
         <Route path="/personal" element={<PersonalPage />} />
         <Route path="/personal/:empleadoId" element={<EmpleadoDetailPage />} />
       </Route>

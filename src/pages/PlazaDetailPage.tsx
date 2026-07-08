@@ -54,7 +54,7 @@ export function PlazaDetailPage() {
       const [p, f, g] = await Promise.all([
         obtenerPlaza(accessToken, plazaId),
         listarFechas(accessToken, plazaId),
-        listarGastos(accessToken, { plazaId, tipo: 'PLAZA' }),
+        listarGastos(accessToken, { plazaId }),
       ]);
       setPlaza(p);
       setFechas(f);
@@ -272,12 +272,12 @@ export function PlazaDetailPage() {
                   <div className="crud-card-title">{gasto.descripcion}</div>
                   <div className="crud-card-meta">
                     <span>{gasto.fecha}</span>
-                    <span className="badge">{gasto.categoriaPlaza}</span>
+                    <span className="badge">{gasto.categoriaNombre}</span>
                     {gasto.fechaId && <span className="badge badge-muted">FECHA CONCRETA</span>}
                   </div>
                 </div>
                 <div className="crud-card-actions">
-                  <strong>{gasto.importeTotal} €</strong>
+                  <strong>{gasto.importe} €</strong>
                 </div>
               </div>
             </div>

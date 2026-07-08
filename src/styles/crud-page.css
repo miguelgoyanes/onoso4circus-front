@@ -43,6 +43,14 @@
   font-weight: 600;
 }
 
+/* Grupo de gastos bajo una misma fecha: separa la cabecera de fecha de las
+   tarjetas que cuelgan de ella (si no, quedan pegadas una a otra). */
+.crud-date-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
 .crud-header p {
   margin: var(--space-1) 0 0;
   color: var(--color-text-muted);
@@ -330,6 +338,16 @@
   background: color-mix(in srgb, var(--color-text-muted) 12%, transparent);
 }
 
+.badge-success {
+  color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 15%, transparent);
+}
+
+.badge-danger {
+  color: var(--color-danger);
+  background: color-mix(in srgb, var(--color-danger) 15%, transparent);
+}
+
 .crud-card-actions {
   position: relative;
   z-index: 1;
@@ -385,4 +403,88 @@
   color: var(--color-text-muted);
   text-align: center;
   padding: var(--space-6) 0;
+}
+
+/* Página de detalle (ej. GastoDetailPage): tarjeta partida en secciones con
+   separadores, en vez de una lista plana de <p>. Cada sección agrupa datos
+   relacionados bajo un título pequeño en mayúsculas. */
+.detail-card {
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.detail-hero {
+  padding: var(--space-8) var(--space-4) var(--space-6);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detail-hero-amount {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.detail-hero-meta {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.detail-section {
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detail-section:last-of-type {
+  border-bottom: none;
+}
+
+.detail-section-title {
+  margin: 0 0 var(--space-3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.detail-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.detail-row-total {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  font-weight: 700;
+}
+
+.detail-label {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.detail-value {
+  font-weight: 600;
+  text-align: right;
+}
+
+.detail-footer {
+  padding: var(--space-4);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-2);
 }

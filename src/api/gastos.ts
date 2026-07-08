@@ -1,43 +1,56 @@
 import { apiFetch } from './client';
 
-export type TipoGasto = 'PERSONAL' | 'PLAZA' | 'GENERAL';
 export type EstadoPagoGasto = 'PAGADO' | 'PENDIENTE_PAGO';
-export type CategoriaGastoPlaza = 'MONTAJE' | 'ALQUILER_MATERIAL' | 'PERMISO_LICENCIA' | 'OTRO';
-export type CategoriaGastoGeneral =
-  | 'GESTORIA'
-  | 'SEGURO_GENERAL'
-  | 'MARKETING'
-  | 'SUSCRIPCION'
-  | 'OTRO';
-export type ConceptoGastoDerivado = 'DIETA' | 'SEGURO' | 'OTRO';
+export type TipoFiscal = 'A' | 'B';
+export type ConceptoPersonal = 'SALARIO' | 'SEGURIDAD_SOCIAL' | 'DIETA' | 'SEGURO' | 'OTRO';
 
-export interface GastoDerivado {
-  concepto: ConceptoGastoDerivado;
+export interface CategoriaGasto {
+  id: string;
+  nombre: string;
+  cuentaContableId: string | null;
+  cuentaContableCode: string | null;
+  requiereEmpleado: boolean;
+  esPagoPersonal: boolean;
+  aplicaIva: boolean;
+  esPredefinida: boolean;
+  usada: boolean;
+}
+
+export interface ConceptoPersonalGasto {
+  concepto: ConceptoPersonal;
   importe: string;
 }
 
 export interface Gasto {
   id: string;
-  tipo: TipoGasto;
+  categoriaId: string;
+  categoriaNombre: string;
   fecha: string;
   descripcion: string;
-  estadoPago: EstadoPagoGasto;
-  importeTotal: string;
+  importe: string;
   plazaId?: string;
   fechaId?: string;
   paseId?: string;
   empleadoId?: string;
-  asignacionId?: string;
-  importeSalario?: string;
-  costeSs?: string;
-  gastosDerivados: GastoDerivado[];
-  categoriaPlaza?: CategoriaGastoPlaza;
-  categoriaGeneral?: CategoriaGastoGeneral;
-  importe?: string;
+  estadoPago: EstadoPagoGasto;
+  cuentaPagoId?: string;
+  tipoFiscal?: TipoFiscal;
+  ivaPercent?: string;
+  baseImponible?: string;
+  importeIva?: string;
+  conceptos: ConceptoPersonalGasto[];
+}
+
+export interface ConceptoPersonalInput {
+  concepto: ConceptoPersonal;
+  importe?: number;
+  tipoFiscal?: TipoFiscal;
+  ivaPercent?: number;
+  baseImponible?: number;
 }
 
 export interface CrearGastoInput {
-  tipo: TipoGasto;
+  categoriaId: string;
   fecha: string;
   descripcion: string;
   estadoPago: EstadoPagoGasto;
@@ -46,28 +59,30 @@ export interface CrearGastoInput {
   fechaId?: string;
   paseId?: string;
   empleadoId?: string;
-  asignacionId?: string;
-  importeSalario?: number;
-  costeSs?: number;
-  gastosDerivados?: { concepto: ConceptoGastoDerivado; importe: number }[];
-  categoriaPlaza?: CategoriaGastoPlaza;
-  categoriaGeneral?: CategoriaGastoGeneral;
   importe?: number;
+  tipoFiscal?: TipoFiscal;
+  ivaPercent?: number;
+  baseImponible?: number;
+  conceptos?: ConceptoPersonalInput[];
 }
 
 export interface ListarGastosFiltro {
   plazaId?: string;
-  tipo?: TipoGasto;
+  categoriaId?: string;
   estadoPago?: EstadoPagoGasto;
 }
 
 export function listarGastos(token: string, filtro: ListarGastosFiltro = {}): Promise<Gasto[]> {
   const params = new URLSearchParams();
   if (filtro.plazaId) params.set('plazaId', filtro.plazaId);
-  if (filtro.tipo) params.set('tipo', filtro.tipo);
+  if (filtro.categoriaId) params.set('categoriaId', filtro.categoriaId);
   if (filtro.estadoPago) params.set('estadoPago', filtro.estadoPago);
   const query = params.toString();
   return apiFetch<Gasto[]>(`/gastos${query ? `?${query}` : ''}`, token);
+}
+
+export function obtenerGasto(token: string, id: string): Promise<Gasto> {
+  return apiFetch<Gasto>(`/gastos/${id}`, token);
 }
 
 export function crearGasto(token: string, data: CrearGastoInput): Promise<Gasto> {
@@ -79,4 +94,38 @@ export function pagarGasto(token: string, id: string, cuentaPagoId: string): Pro
     method: 'POST',
     body: JSON.stringify({ cuentaPagoId }),
   });
+}
+
+export function eliminarGasto(token: string, id: string): Promise<void> {
+  return apiFetch<void>(`/gastos/${id}`, token, { method: 'DELETE' });
+}
+
+// Categorías de gasto
+export function listarCategoriasGasto(token: string): Promise<CategoriaGasto[]> {
+  return apiFetch<CategoriaGasto[]>('/categorias-gasto', token);
+}
+
+export function crearCategoriaGasto(
+  token: string,
+  data: { nombre: string; cuentaContableCode: string; requiereEmpleado: boolean; aplicaIva: boolean },
+): Promise<CategoriaGasto> {
+  return apiFetch<CategoriaGasto>('/categorias-gasto', token, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export function actualizarCategoriaGasto(
+  token: string,
+  id: string,
+  data: { nombre: string; aplicaIva: boolean; requiereEmpleado: boolean; cuentaContableCode?: string },
+): Promise<CategoriaGasto> {
+  return apiFetch<CategoriaGasto>(`/categorias-gasto/${id}`, token, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export function eliminarCategoriaGasto(token: string, id: string): Promise<void> {
+  return apiFetch<void>(`/categorias-gasto/${id}`, token, { method: 'DELETE' });
 }
