@@ -25,6 +25,9 @@ export function WelcomePage() {
             <Link to="/tesoreria" className="welcome-link">
               Tesorería
             </Link>
+            <Link to="/gastos" className="welcome-link">
+              Gastos
+            </Link>
           </>
         )}
 

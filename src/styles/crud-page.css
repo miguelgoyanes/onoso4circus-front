@@ -33,8 +33,14 @@
   flex-wrap: wrap;
 }
 
-.crud-header-row h1 {
+.crud-header-row h1,
+.crud-header-row h2 {
   margin: 0;
+}
+
+.crud-header-row h2 {
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .crud-header p {

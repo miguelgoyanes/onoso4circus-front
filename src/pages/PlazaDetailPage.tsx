@@ -12,6 +12,7 @@ import {
   type Plaza,
   type TipoActividad,
 } from '../api/plazas';
+import { listarGastos, type Gasto } from '../api/gastos';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import '../styles/crud-page.css';
 
@@ -33,6 +34,8 @@ export function PlazaDetailPage() {
   const [editFecha, setEditFecha] = useState('');
   const [editTipo, setEditTipo] = useState<TipoActividad>('SHOW');
 
+  const [gastos, setGastos] = useState<Gasto[] | null>(null);
+
   function handleApiError(err: unknown): void {
     if (err instanceof ApiError) {
       if (err.status === 401) {
@@ -48,12 +51,14 @@ export function PlazaDetailPage() {
   async function cargar() {
     if (!accessToken || !plazaId) return;
     try {
-      const [p, f] = await Promise.all([
+      const [p, f, g] = await Promise.all([
         obtenerPlaza(accessToken, plazaId),
         listarFechas(accessToken, plazaId),
+        listarGastos(accessToken, { plazaId, tipo: 'PLAZA' }),
       ]);
       setPlaza(p);
       setFechas(f);
+      setGastos(g);
     } catch (err) {
       handleApiError(err);
     }
@@ -247,6 +252,31 @@ export function PlazaDetailPage() {
                   </div>
                 </div>
               )}
+            </div>
+          ))}
+        </div>
+
+        <div className="crud-header-row">
+          <h2>Gastos</h2>
+        </div>
+
+        <div className="crud-list">
+          {gastos === null && <p className="crud-empty">Cargando…</p>}
+          {gastos?.length === 0 && <p className="crud-empty">No hay gastos registrados.</p>}
+          {gastos?.map((gasto) => (
+            <div key={gasto.id} className="crud-card">
+              <div className="crud-card-row">
+                <div className="crud-card-info">
+                  <div className="crud-card-title">
+                    {gasto.descripcion} <span className="badge">{gasto.categoriaPlaza}</span>
+                    {gasto.fechaId && <span className="badge">FECHA CONCRETA</span>}
+                  </div>
+                  <p className="crud-card-subtitle">{gasto.fecha}</p>
+                </div>
+                <div className="crud-card-actions">
+                  <strong>{gasto.importeTotal} €</strong>
+                </div>
+              </div>
             </div>
           ))}
         </div>
