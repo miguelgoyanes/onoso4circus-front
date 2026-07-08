@@ -14,6 +14,7 @@ import {
   type Plaza,
 } from '../api/plazas';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { Modal } from '../components/Modal';
 import '../styles/crud-page.css';
 
 export function FechaDetailPage() {
@@ -132,16 +133,12 @@ export function FechaDetailPage() {
         {error && <p className="crud-error">{error}</p>}
 
         <div className="crud-toolbar">
-          <button
-            type="button"
-            className="crud-btn-primary"
-            onClick={() => setShowForm((v) => !v)}
-          >
-            {showForm ? 'Cancelar' : 'Crear pase'}
+          <button type="button" className="crud-btn-primary" onClick={() => setShowForm(true)}>
+            Crear pase
           </button>
         </div>
 
-        {showForm && (
+        <Modal open={showForm} onClose={() => setShowForm(false)} title="Crear pase">
           <form className="crud-form" onSubmit={handleCrear}>
             <div className="crud-form-row">
               <label className="crud-field">
@@ -163,12 +160,15 @@ export function FechaDetailPage() {
               </label>
             </div>
             <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowForm(false)}>
+                Cancelar
+              </button>
               <button type="submit" className="crud-btn-primary" disabled={guardando}>
                 {guardando ? 'Creando…' : 'Guardar'}
               </button>
             </div>
           </form>
-        )}
+        </Modal>
 
         <div className="crud-list">
           {pases === null && <p className="crud-empty">Cargando…</p>}

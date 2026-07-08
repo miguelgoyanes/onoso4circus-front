@@ -9,6 +9,7 @@ import {
   type CuentaPublica,
 } from '../api/tesoreria';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { Modal } from '../components/Modal';
 import '../styles/crud-page.css';
 
 const TIPOS: AccountType[] = ['ASSET', 'LIABILITY', 'EQUITY', 'INCOME', 'EXPENSE'];
@@ -121,12 +122,8 @@ export function TesoreriaPage() {
           <Breadcrumbs items={[{ label: 'Inicio', to: '/' }, { label: 'Tesorería' }]} />
           <div className="crud-header-row">
             <h1>Tesorería</h1>
-            <button
-              type="button"
-              className="crud-btn-primary"
-              onClick={() => setShowForm((v) => !v)}
-            >
-              {showForm ? 'Cancelar' : 'Crear cuenta'}
+            <button type="button" className="crud-btn-primary" onClick={() => setShowForm(true)}>
+              Crear cuenta
             </button>
           </div>
           {patrimonio !== null && (
@@ -167,7 +164,7 @@ export function TesoreriaPage() {
           </div>
         </div>
 
-        {showForm && (
+        <Modal open={showForm} onClose={() => setShowForm(false)} title="Crear cuenta">
           <form className="crud-form" onSubmit={handleCrear}>
             <div className="crud-form-row">
               <label className="crud-field">
@@ -207,12 +204,15 @@ export function TesoreriaPage() {
               </label>
             </div>
             <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowForm(false)}>
+                Cancelar
+              </button>
               <button type="submit" className="crud-btn-primary" disabled={guardando}>
                 {guardando ? 'Creando…' : 'Guardar'}
               </button>
             </div>
           </form>
-        )}
+        </Modal>
 
         <div className="crud-list">
           {cuentasFiltradas === undefined && <p className="crud-empty">Cargando…</p>}

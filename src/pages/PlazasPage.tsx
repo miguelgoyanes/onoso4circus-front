@@ -11,6 +11,7 @@ import {
   type TipoPlaza,
 } from '../api/plazas';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { Modal } from '../components/Modal';
 import '../styles/crud-page.css';
 
 const TIPOS_PLAZA: TipoPlaza[] = ['CON_CIRCO', 'SIN_CIRCO'];
@@ -122,16 +123,12 @@ export function PlazasPage() {
         {error && <p className="crud-error">{error}</p>}
 
         <div className="crud-toolbar">
-          <button
-            type="button"
-            className="crud-btn-primary"
-            onClick={() => setShowForm((v) => !v)}
-          >
-            {showForm ? 'Cancelar' : 'Crear plaza'}
+          <button type="button" className="crud-btn-primary" onClick={() => setShowForm(true)}>
+            Crear plaza
           </button>
         </div>
 
-        {showForm && (
+        <Modal open={showForm} onClose={() => setShowForm(false)} title="Crear plaza">
           <form className="crud-form" onSubmit={handleCrear}>
             <div className="crud-form-row">
               <label className="crud-field">
@@ -161,12 +158,15 @@ export function PlazasPage() {
               </label>
             </div>
             <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowForm(false)}>
+                Cancelar
+              </button>
               <button type="submit" className="crud-btn-primary" disabled={guardando}>
                 {guardando ? 'Creando…' : 'Guardar'}
               </button>
             </div>
           </form>
-        )}
+        </Modal>
 
         <div className="crud-list">
           {plazas === null && <p className="crud-empty">Cargando…</p>}

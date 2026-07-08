@@ -12,6 +12,7 @@ import {
   type UsuarioPublico,
 } from '../api/usuarios';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { Modal } from '../components/Modal';
 import './UsuariosPage.css';
 
 const ROLES: Rol[] = ['ADMIN', 'OPERADOR'];
@@ -163,16 +164,12 @@ export function UsuariosPage() {
         {error && <p className="usuarios-error">{error}</p>}
 
         <div className="usuarios-toolbar">
-          <button
-            type="button"
-            className="usuarios-crear-btn"
-            onClick={() => setShowForm((value) => !value)}
-          >
-            {showForm ? 'Cancelar' : 'Crear usuario'}
+          <button type="button" className="usuarios-crear-btn" onClick={() => setShowForm(true)}>
+            Crear usuario
           </button>
         </div>
 
-        {showForm && (
+        <Modal open={showForm} onClose={() => setShowForm(false)} title="Crear usuario">
           <form className="usuarios-form" onSubmit={handleCrear}>
             <div className="usuarios-form-row">
               <label className="usuarios-field">
@@ -217,12 +214,15 @@ export function UsuariosPage() {
               </label>
             </div>
             <div className="usuarios-form-actions">
+              <button type="button" className="usuarios-form-cancel" onClick={() => setShowForm(false)}>
+                Cancelar
+              </button>
               <button type="submit" className="usuarios-crear-btn" disabled={creando}>
                 {creando ? 'Creando…' : 'Guardar'}
               </button>
             </div>
           </form>
-        )}
+        </Modal>
 
         <div className="usuarios-list">
           {usuarios === null && <p className="usuarios-empty">Cargando…</p>}

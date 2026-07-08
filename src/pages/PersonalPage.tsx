@@ -12,6 +12,7 @@ import {
   type RegimenEmpleado,
 } from '../api/personal';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { Modal } from '../components/Modal';
 import '../styles/crud-page.css';
 
 const REGIMENES: RegimenEmpleado[] = ['CUENTA_AJENA', 'AUTONOMO'];
@@ -144,16 +145,12 @@ export function PersonalPage() {
         {error && <p className="crud-error">{error}</p>}
 
         <div className="crud-toolbar">
-          <button
-            type="button"
-            className="crud-btn-primary"
-            onClick={() => setShowForm((v) => !v)}
-          >
-            {showForm ? 'Cancelar' : 'Crear empleado'}
+          <button type="button" className="crud-btn-primary" onClick={() => setShowForm(true)}>
+            Crear empleado
           </button>
         </div>
 
-        {showForm && (
+        <Modal open={showForm} onClose={() => setShowForm(false)} title="Crear empleado">
           <form className="crud-form" onSubmit={handleCrear}>
             <div className="crud-form-row">
               <label className="crud-field">
@@ -191,12 +188,15 @@ export function PersonalPage() {
               </label>
             </div>
             <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowForm(false)}>
+                Cancelar
+              </button>
               <button type="submit" className="crud-btn-primary" disabled={guardando}>
                 {guardando ? 'Creando…' : 'Guardar'}
               </button>
             </div>
           </form>
-        )}
+        </Modal>
 
         <div className="crud-list">
           {empleados === null && <p className="crud-empty">Cargando…</p>}

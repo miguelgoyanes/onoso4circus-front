@@ -19,6 +19,7 @@ import { listarFechas, listarPases, listarPlazas, type Fecha, type Pase, type Pl
 import { listarEmpleados, type Empleado } from '../api/personal';
 import { calcularBaseDesdeTotal, calcularDesdeBase } from '../utils/iva';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { Modal } from '../components/Modal';
 import '../styles/crud-page.css';
 
 const ESTADOS_PAGO: EstadoPagoGasto[] = ['PAGADO', 'PENDIENTE_PAGO'];
@@ -350,8 +351,8 @@ export function GastosPage() {
               <Link to="/gastos/categorias" className="crud-link-btn">
                 ⚙ Categorías
               </Link>
-              <button type="button" className="crud-btn-primary" onClick={() => setShowForm((v) => !v)}>
-                {showForm ? 'Cancelar' : 'Registrar gasto'}
+              <button type="button" className="crud-btn-primary" onClick={() => setShowForm(true)}>
+                Registrar gasto
               </button>
             </div>
           </div>
@@ -384,7 +385,7 @@ export function GastosPage() {
           </label>
         </div>
 
-        {showForm && (
+        <Modal open={showForm} onClose={() => setShowForm(false)} title="Registrar gasto">
           <form className="crud-form" onSubmit={handleCrear}>
             <div className="crud-form-row">
               <label className="crud-field">
@@ -630,12 +631,15 @@ export function GastosPage() {
             </div>
 
             <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowForm(false)}>
+                Cancelar
+              </button>
               <button type="submit" className="crud-btn-primary" disabled={guardando || !categoria}>
                 {guardando ? 'Guardando…' : 'Guardar'}
               </button>
             </div>
           </form>
-        )}
+        </Modal>
 
         {gastos === null && <p className="crud-empty">Cargando…</p>}
         {gastos?.length === 0 && <p className="crud-empty">No hay gastos registrados.</p>}

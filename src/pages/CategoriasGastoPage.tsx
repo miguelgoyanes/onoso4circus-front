@@ -9,6 +9,7 @@ import {
   type CategoriaGasto,
 } from '../api/gastos';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { Modal } from '../components/Modal';
 import '../styles/crud-page.css';
 
 export function CategoriasGastoPage() {
@@ -130,12 +131,12 @@ export function CategoriasGastoPage() {
         {error && <p className="crud-error">{error}</p>}
 
         <div className="crud-toolbar">
-          <button type="button" className="crud-btn-primary" onClick={() => setShowForm((v) => !v)}>
-            {showForm ? 'Cancelar' : 'Crear categoría'}
+          <button type="button" className="crud-btn-primary" onClick={() => setShowForm(true)}>
+            Crear categoría
           </button>
         </div>
 
-        {showForm && (
+        <Modal open={showForm} onClose={() => setShowForm(false)} title="Crear categoría">
           <form className="crud-form" onSubmit={handleCrear}>
             <div className="crud-form-row">
               <label className="crud-field">
@@ -164,12 +165,15 @@ export function CategoriasGastoPage() {
               </label>
             </div>
             <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowForm(false)}>
+                Cancelar
+              </button>
               <button type="submit" className="crud-btn-primary" disabled={guardando}>
                 {guardando ? 'Creando…' : 'Guardar'}
               </button>
             </div>
           </form>
-        )}
+        </Modal>
 
         <div className="crud-list">
           {categorias === null && <p className="crud-empty">Cargando…</p>}
