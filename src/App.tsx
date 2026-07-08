@@ -11,6 +11,8 @@ import { PlazaDetailPage } from './pages/PlazaDetailPage';
 import { FechaDetailPage } from './pages/FechaDetailPage';
 import { TesoreriaPage } from './pages/TesoreriaPage';
 import { GastosPage } from './pages/GastosPage';
+import { PersonalPage } from './pages/PersonalPage';
+import { EmpleadoDetailPage } from './pages/EmpleadoDetailPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -32,6 +34,8 @@ function AppRoutes() {
         <Route path="/fechas/:fechaId" element={<FechaDetailPage />} />
         <Route path="/tesoreria" element={<TesoreriaPage />} />
         <Route path="/gastos" element={<GastosPage />} />
+        <Route path="/personal" element={<PersonalPage />} />
+        <Route path="/personal/:empleadoId" element={<EmpleadoDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

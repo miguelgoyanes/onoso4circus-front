@@ -19,6 +19,9 @@ export function WelcomePage() {
             <Link to="/plazas" className="welcome-link">
               Gestionar plazas
             </Link>
+            <Link to="/personal" className="welcome-link">
+              Personal
+            </Link>
             <Link to="/usuarios" className="welcome-link">
               Gestionar usuarios
             </Link>
