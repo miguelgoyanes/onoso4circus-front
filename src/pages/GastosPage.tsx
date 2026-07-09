@@ -168,7 +168,7 @@ export function GastosPage() {
       ]);
       setGastos(gastosData);
       setCategorias(categoriasData);
-      setCuentasDeDinero(cuentasData.filter((c) => c.esCuentaDeDinero));
+      setCuentasDeDinero(cuentasData.filter((c) => c.activa));
       setPlazas(plazasData);
       setEmpleados(empleadosData);
     } catch (err) {
@@ -183,8 +183,7 @@ export function GastosPage() {
 
   useEffect(() => {
     if (cuentaPagoId || cuentasDeDinero.length === 0) return;
-    const porDefecto = cuentasDeDinero.find((c) => c.code === '570001') ?? cuentasDeDinero[0];
-    setCuentaPagoId(porDefecto.id);
+    setCuentaPagoId(cuentasDeDinero[0].id);
   }, [cuentasDeDinero, cuentaPagoId]);
 
   useEffect(() => {
@@ -622,7 +621,7 @@ export function GastosPage() {
                   <select value={cuentaPagoId} onChange={(e) => setCuentaPagoId(e.target.value)}>
                     {cuentasDeDinero.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.nombre} ({c.code})
+                        {c.nombre}
                       </option>
                     ))}
                   </select>
@@ -674,7 +673,7 @@ export function GastosPage() {
                               <option value="">Cuenta de pago…</option>
                               {cuentasDeDinero.map((c) => (
                                 <option key={c.id} value={c.id}>
-                                  {c.nombre} ({c.code})
+                                  {c.nombre}
                                 </option>
                               ))}
                             </select>

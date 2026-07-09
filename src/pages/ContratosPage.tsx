@@ -69,7 +69,7 @@ export function ContratosPage() {
         listarPlazas(accessToken),
       ]);
       setContratos(contratosData);
-      setCuentasDeDinero(cuentasData.filter((c) => c.esCuentaDeDinero));
+      setCuentasDeDinero(cuentasData.filter((c) => c.activa));
       setPlazas(plazasData);
     } catch (err) {
       handleApiError(err);
@@ -83,8 +83,7 @@ export function ContratosPage() {
 
   useEffect(() => {
     if (cuentaDestinoId || cuentasDeDinero.length === 0) return;
-    const porDefecto = cuentasDeDinero.find((c) => c.code === '570001') ?? cuentasDeDinero[0];
-    setCuentaDestinoId(porDefecto.id);
+    setCuentaDestinoId(cuentasDeDinero[0].id);
   }, [cuentasDeDinero, cuentaDestinoId]);
 
   useEffect(() => {
@@ -360,7 +359,7 @@ export function ContratosPage() {
                   <select value={cuentaDestinoId} onChange={(e) => setCuentaDestinoId(e.target.value)}>
                     {cuentasDeDinero.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.nombre} ({c.code})
+                        {c.nombre}
                       </option>
                     ))}
                   </select>

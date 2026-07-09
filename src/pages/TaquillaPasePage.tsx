@@ -104,7 +104,7 @@ function LineaCampos({
             <option value="">Selecciona…</option>
             {cuentas.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.nombre} ({c.code})
+                {c.nombre}
               </option>
             ))}
           </select>
@@ -202,7 +202,7 @@ export function TaquillaPasePage() {
       ]);
       setPase(p);
       setTiposEntrada(tipos);
-      setCuentasDeDinero(cuentas.filter((c) => c.esCuentaDeDinero));
+      setCuentasDeDinero(cuentas.filter((c) => c.activa && c.usableEnTaquilla));
       setVentas(ventasData);
       const f = await obtenerFecha(accessToken, p.fechaId);
       setFecha(f);
@@ -219,8 +219,7 @@ export function TaquillaPasePage() {
   }, [accessToken, paseId]);
 
   function cuentaPorDefecto(): string {
-    const porDefecto = cuentasDeDinero.find((c) => c.code === '570001') ?? cuentasDeDinero[0];
-    return porDefecto?.id ?? '';
+    return cuentasDeDinero[0]?.id ?? '';
   }
 
   function abrirRegistrar() {

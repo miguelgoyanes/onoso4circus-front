@@ -62,10 +62,9 @@ export function GastoDetailPage() {
   }, [accessToken, gastoId]);
 
   useEffect(() => {
-    const cuentasDeDinero = cuentas.filter((c) => c.esCuentaDeDinero);
+    const cuentasDeDinero = cuentas.filter((c) => c.activa);
     if (pagarCuentaId || cuentasDeDinero.length === 0) return;
-    const porDefecto = cuentasDeDinero.find((c) => c.code === '570001') ?? cuentasDeDinero[0];
-    setPagarCuentaId(porDefecto.id);
+    setPagarCuentaId(cuentasDeDinero[0].id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cuentas]);
 
@@ -165,9 +164,7 @@ export function GastoDetailPage() {
                 {cuentaPago && (
                   <div className="detail-row">
                     <span className="detail-label">Cuenta</span>
-                    <span className="detail-value">
-                      {cuentaPago.nombre} ({cuentaPago.code})
-                    </span>
+                    <span className="detail-value">{cuentaPago.nombre}</span>
                   </div>
                 )}
               </div>
@@ -224,10 +221,10 @@ export function GastoDetailPage() {
                     <select value={pagarCuentaId} onChange={(e) => setPagarCuentaId(e.target.value)}>
                       <option value="">Cuenta de pago…</option>
                       {cuentas
-                        .filter((c) => c.esCuentaDeDinero)
+                        .filter((c) => c.activa)
                         .map((c) => (
                           <option key={c.id} value={c.id}>
-                            {c.nombre} ({c.code})
+                            {c.nombre}
                           </option>
                         ))}
                     </select>

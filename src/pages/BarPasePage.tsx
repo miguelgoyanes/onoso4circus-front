@@ -79,7 +79,7 @@ export function BarPasePage() {
       ]);
       setPase(p);
       setProductos(prods);
-      setCuentasDeDinero(cuentas.filter((c) => c.esCuentaDeDinero));
+      setCuentasDeDinero(cuentas.filter((c) => c.activa && c.usableEnBar));
       setPedidos(pedidosData);
       const f = await obtenerFecha(accessToken, p.fechaId);
       setFecha(f);
@@ -172,7 +172,7 @@ export function BarPasePage() {
   function abrirRegistrarManual() {
     setError(null);
     setManualLineas([{ productoId: productos[0]?.id ?? '', cantidad: '1' }]);
-    setManualCuentaCobroId(cuentasDeDinero.find((c) => c.code === '570001')?.id ?? cuentasDeDinero[0]?.id ?? '');
+    setManualCuentaCobroId(cuentasDeDinero[0]?.id ?? '');
     setManualTipoFiscal('B');
     setManualIvaPercent('21');
     setShowRegistrarManual(true);
@@ -298,7 +298,7 @@ export function BarPasePage() {
                   <select value={editCuentaCobroId} onChange={(e) => setEditCuentaCobroId(e.target.value)}>
                     {cuentasDeDinero.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.nombre} ({c.code})
+                        {c.nombre}
                       </option>
                     ))}
                   </select>
@@ -392,7 +392,7 @@ export function BarPasePage() {
                   <option value="">Selecciona…</option>
                   {cuentasDeDinero.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.nombre} ({c.code})
+                      {c.nombre}
                     </option>
                   ))}
                 </select>

@@ -48,7 +48,7 @@ export function BarRegistrarVentaPage() {
         ]);
         setPase(p);
         setProductos(prods);
-        setCuentasDeDinero(cuentas.filter((c) => c.esCuentaDeDinero));
+        setCuentasDeDinero(cuentas.filter((c) => c.activa && c.usableEnBar));
         const f = await obtenerFecha(accessToken, p.fechaId);
         setFecha(f);
         setPlaza(await obtenerPlaza(accessToken, f.plazaId));
@@ -60,12 +60,11 @@ export function BarRegistrarVentaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, paseId]);
 
-  // La cuenta de cobro viene preseleccionada (la primera / 570001 si existe) — Brandon solo
-  // tiene que cambiarla si de verdad hace falta, no elegirla cada vez.
+  // La cuenta de cobro viene preseleccionada (la primera de la lista) — Brandon solo tiene
+  // que cambiarla si de verdad hace falta, no elegirla cada vez.
   useEffect(() => {
     if (cuentaCobroId || cuentasDeDinero.length === 0) return;
-    const porDefecto = cuentasDeDinero.find((c) => c.code === '570001') ?? cuentasDeDinero[0];
-    setCuentaCobroId(porDefecto.id);
+    setCuentaCobroId(cuentasDeDinero[0].id);
   }, [cuentasDeDinero, cuentaCobroId]);
 
   const productosActivos = productos.filter((p) => p.activo).sort((a, b) => a.orden - b.orden);

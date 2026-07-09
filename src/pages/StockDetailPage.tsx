@@ -207,7 +207,7 @@ export function StockDetailPage() {
     setRecCosteUnitario('');
     setRecCosteTotal('');
     setRecFecha(datetimeLocalAhora());
-    const cuentaPorDefecto = cuentas.find((c) => c.esCuentaDeDinero && c.code === '570001') ?? cuentas.find((c) => c.esCuentaDeDinero);
+    const cuentaPorDefecto = cuentas.find((c) => c.activa);
     setRecCuentaOrigenId(cuentaPorDefecto?.id ?? '');
     setShowRecepcion(true);
   }
@@ -340,7 +340,7 @@ export function StockDetailPage() {
     }
   }
 
-  const cuentasDeDinero = cuentas.filter((c) => c.esCuentaDeDinero);
+  const cuentasDeDinero = cuentas.filter((c) => c.activa);
   const historial = construirHistorialStock(recepciones, ajustes);
 
   return (
@@ -545,7 +545,7 @@ export function StockDetailPage() {
                   <option value="">Cuenta…</option>
                   {cuentasDeDinero.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.nombre} ({c.code})
+                      {c.nombre}
                     </option>
                   ))}
                 </select>
@@ -592,7 +592,7 @@ export function StockDetailPage() {
                   <option value="">Cuenta…</option>
                   {cuentasDeDinero.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.nombre} ({c.code})
+                      {c.nombre}
                     </option>
                   ))}
                 </select>
