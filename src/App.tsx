@@ -31,6 +31,9 @@ import { BarPlazaPage } from './pages/BarPlazaPage';
 import { BarFechaPage } from './pages/BarFechaPage';
 import { BarPasePage } from './pages/BarPasePage';
 import { BarRegistrarVentaPage } from './pages/BarRegistrarVentaPage';
+import { ActivosPage } from './pages/ActivosPage';
+import { CategoriasActivoPage } from './pages/CategoriasActivoPage';
+import { ActivoDetailPage } from './pages/ActivoDetailPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -72,6 +75,9 @@ function AppRoutes() {
         <Route path="/ventas/bar/fechas/:fechaId" element={<BarFechaPage />} />
         <Route path="/ventas/bar/pases/:paseId" element={<BarPasePage />} />
         <Route path="/ventas/bar/pases/:paseId/registrar" element={<BarRegistrarVentaPage />} />
+        <Route path="/activos" element={<ActivosPage />} />
+        <Route path="/activos/categorias" element={<CategoriasActivoPage />} />
+        <Route path="/activos/:activoId" element={<ActivoDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
