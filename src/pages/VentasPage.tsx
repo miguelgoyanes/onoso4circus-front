@@ -26,16 +26,19 @@ export function VentasPage() {
             </div>
           </Link>
 
-          <div className="crud-card" style={{ opacity: 0.5 }}>
+          <Link to="/ventas/taquilla" className="crud-card crud-card-title-link" style={{ display: 'block' }}>
             <div className="crud-card-row">
               <div className="crud-card-info">
                 <div className="crud-card-title">Taquilla</div>
                 <div className="crud-card-meta">
-                  <span className="badge badge-muted">Próximamente</span>
+                  <span>Venta de entradas por pase, en efectivo, tarjeta u online</span>
                 </div>
               </div>
+              <span className="crud-card-chevron" aria-hidden="true">
+                ›
+              </span>
             </div>
-          </div>
+          </Link>
 
           <div className="crud-card" style={{ opacity: 0.5 }}>
             <div className="crud-card-row">

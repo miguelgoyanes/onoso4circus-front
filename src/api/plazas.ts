@@ -89,6 +89,10 @@ export function listarPases(token: string, fechaId: string): Promise<Pase[]> {
   return apiFetch<Pase[]>(`/fechas/${fechaId}/pases`, token);
 }
 
+export function obtenerPase(token: string, id: string): Promise<Pase> {
+  return apiFetch<Pase>(`/pases/${id}`, token);
+}
+
 export function crearPase(
   token: string,
   fechaId: string,

@@ -20,6 +20,11 @@ import { StockDetailPage } from './pages/StockDetailPage';
 import { VentasPage } from './pages/VentasPage';
 import { ContratosPage } from './pages/ContratosPage';
 import { ContratoDetailPage } from './pages/ContratoDetailPage';
+import { TaquillaPage } from './pages/TaquillaPage';
+import { TaquillaPlazaPage } from './pages/TaquillaPlazaPage';
+import { TaquillaFechaPage } from './pages/TaquillaFechaPage';
+import { TaquillaPasePage } from './pages/TaquillaPasePage';
+import { TiposEntradaPage } from './pages/TiposEntradaPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -50,6 +55,11 @@ function AppRoutes() {
         <Route path="/ventas" element={<VentasPage />} />
         <Route path="/ventas/contratos" element={<ContratosPage />} />
         <Route path="/ventas/contratos/:contratoId" element={<ContratoDetailPage />} />
+        <Route path="/ventas/taquilla" element={<TaquillaPage />} />
+        <Route path="/ventas/taquilla/tipos" element={<TiposEntradaPage />} />
+        <Route path="/ventas/taquilla/plazas/:plazaId" element={<TaquillaPlazaPage />} />
+        <Route path="/ventas/taquilla/fechas/:fechaId" element={<TaquillaFechaPage />} />
+        <Route path="/ventas/taquilla/pases/:paseId" element={<TaquillaPasePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
