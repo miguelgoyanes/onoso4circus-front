@@ -25,6 +25,11 @@ import { TaquillaPlazaPage } from './pages/TaquillaPlazaPage';
 import { TaquillaFechaPage } from './pages/TaquillaFechaPage';
 import { TaquillaPasePage } from './pages/TaquillaPasePage';
 import { TiposEntradaPage } from './pages/TiposEntradaPage';
+import { BarPage } from './pages/BarPage';
+import { BarPlazaPage } from './pages/BarPlazaPage';
+import { BarFechaPage } from './pages/BarFechaPage';
+import { BarPasePage } from './pages/BarPasePage';
+import { BarRegistrarVentaPage } from './pages/BarRegistrarVentaPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -60,6 +65,11 @@ function AppRoutes() {
         <Route path="/ventas/taquilla/plazas/:plazaId" element={<TaquillaPlazaPage />} />
         <Route path="/ventas/taquilla/fechas/:fechaId" element={<TaquillaFechaPage />} />
         <Route path="/ventas/taquilla/pases/:paseId" element={<TaquillaPasePage />} />
+        <Route path="/ventas/bar" element={<BarPage />} />
+        <Route path="/ventas/bar/plazas/:plazaId" element={<BarPlazaPage />} />
+        <Route path="/ventas/bar/fechas/:fechaId" element={<BarFechaPage />} />
+        <Route path="/ventas/bar/pases/:paseId" element={<BarPasePage />} />
+        <Route path="/ventas/bar/pases/:paseId/registrar" element={<BarRegistrarVentaPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

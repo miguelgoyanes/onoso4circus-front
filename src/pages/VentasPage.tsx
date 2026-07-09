@@ -40,16 +40,19 @@ export function VentasPage() {
             </div>
           </Link>
 
-          <div className="crud-card" style={{ opacity: 0.5 }}>
+          <Link to="/ventas/bar" className="crud-card crud-card-title-link" style={{ display: 'block' }}>
             <div className="crud-card-row">
               <div className="crud-card-info">
                 <div className="crud-card-title">Bar</div>
                 <div className="crud-card-meta">
-                  <span className="badge badge-muted">Próximamente</span>
+                  <span>Venta rápida de productos por pase, en un tap</span>
                 </div>
               </div>
+              <span className="crud-card-chevron" aria-hidden="true">
+                ›
+              </span>
             </div>
-          </div>
+          </Link>
         </div>
       </div>
     </div>
