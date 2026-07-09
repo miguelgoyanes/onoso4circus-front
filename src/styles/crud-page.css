@@ -399,6 +399,41 @@
   border-color: var(--color-danger);
 }
 
+/* Flechas de orden manual (ej. StockPage). */
+.crud-card-orden {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.crud-card-orden-btn {
+  width: 1.75rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-border);
+  border-radius: calc(var(--radius) - 6px);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  line-height: 1;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.crud-card-orden-btn:hover:not(:disabled) {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.crud-card-orden-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .crud-empty {
   color: var(--color-text-muted);
   text-align: center;
@@ -487,4 +522,60 @@
   display: flex;
   justify-content: flex-end;
   gap: var(--space-2);
+}
+
+/* Selector de imagen cuadrada (StockPage: foto de producto para la rejilla del bar). */
+.imagen-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  width: fit-content;
+}
+
+.imagen-picker-preview,
+.imagen-picker-placeholder {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+}
+
+.imagen-picker-preview {
+  object-fit: cover;
+}
+
+.imagen-picker-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+  padding: var(--space-2);
+}
+
+.imagen-picker-label {
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  text-decoration: underline;
+}
+
+.crud-card-thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  border: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.crud-card-thumb-placeholder {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius);
+  border: 1px dashed var(--color-border);
+  flex-shrink: 0;
 }

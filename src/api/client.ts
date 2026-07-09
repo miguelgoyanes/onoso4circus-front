@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
+export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000';
 
 export class ApiError extends Error {
   status: number;
@@ -31,5 +31,25 @@ export async function apiFetch<T>(
   }
 
   if (response.status === 204) return undefined as T;
+  return response.json();
+}
+
+// Para subir archivos: sin 'Content-Type' manual, el navegador fija el boundary
+// multipart correcto a partir del FormData.
+export async function apiUpload<T>(path: string, token: string | null, formData: FormData): Promise<T> {
+  const response = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const body: { message?: string | string[] } | null = await response
+      .json()
+      .catch(() => null);
+    const message = Array.isArray(body?.message) ? body.message.join(', ') : body?.message;
+    throw new ApiError(response.status, message ?? 'Error inesperado del servidor');
+  }
+
   return response.json();
 }
