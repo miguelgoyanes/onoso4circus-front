@@ -4,13 +4,25 @@ import { useAuth } from '../auth/AuthContext';
 import { ApiError } from '../api/client';
 import {
   activarCuenta,
+  actualizarAjusteArqueo,
   actualizarCuenta,
+  actualizarMovimientoCapital,
+  actualizarTransferencia,
+  crearAjusteArqueo,
   desactivarCuenta,
+  eliminarAjusteArqueo,
   eliminarCuenta,
+  eliminarMovimientoCapital,
+  eliminarTransferencia,
+  listarCuentas,
   listarMovimientos,
+  obtenerAjusteArqueo,
   obtenerCuenta,
+  obtenerMovimientoCapital,
+  obtenerTransferencia,
   type CuentaPublica,
   type MovimientoCuenta,
+  type TipoMovimientoCapital,
 } from '../api/tesoreria';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { Modal } from '../components/Modal';
@@ -22,12 +34,36 @@ export function CuentaDetailPage() {
   const { accessToken, logout } = useAuth();
   const [cuenta, setCuenta] = useState<CuentaPublica | null>(null);
   const [movimientos, setMovimientos] = useState<MovimientoCuenta[] | null>(null);
+  const [cuentas, setCuentas] = useState<CuentaPublica[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const [showEditar, setShowEditar] = useState(false);
   const [editNombre, setEditNombre] = useState('');
   const [editUsableEnTaquilla, setEditUsableEnTaquilla] = useState(false);
   const [editUsableEnBar, setEditUsableEnBar] = useState(false);
+
+  const [showAjuste, setShowAjuste] = useState(false);
+  const [ajusteEditId, setAjusteEditId] = useState<string | null>(null);
+  const [ajusteImporteReal, setAjusteImporteReal] = useState('');
+  const [ajusteConcepto, setAjusteConcepto] = useState('');
+  const [guardandoAjuste, setGuardandoAjuste] = useState(false);
+
+  const [showTransferencia, setShowTransferencia] = useState(false);
+  const [transferenciaEditId, setTransferenciaEditId] = useState<string | null>(null);
+  const [transOrigenId, setTransOrigenId] = useState('');
+  const [transDestinoId, setTransDestinoId] = useState('');
+  const [transImporte, setTransImporte] = useState('');
+  const [transConcepto, setTransConcepto] = useState('');
+  const [guardandoTransferencia, setGuardandoTransferencia] = useState(false);
+
+  const [showCapital, setShowCapital] = useState(false);
+  const [capitalEditId, setCapitalEditId] = useState<string | null>(null);
+  const [capitalTipo, setCapitalTipo] = useState<TipoMovimientoCapital>('ENTRADA');
+  const [capitalImporte, setCapitalImporte] = useState('');
+  const [capitalConcepto, setCapitalConcepto] = useState('');
+  const [guardandoCapital, setGuardandoCapital] = useState(false);
+
+  const cuentasActivas = cuentas.filter((c) => c.activa);
 
   function handleApiError(err: unknown): void {
     if (err instanceof ApiError) {
@@ -44,9 +80,14 @@ export function CuentaDetailPage() {
   async function cargar() {
     if (!accessToken || !cuentaId) return;
     try {
-      const [c, m] = await Promise.all([obtenerCuenta(accessToken, cuentaId), listarMovimientos(accessToken, cuentaId)]);
+      const [c, m, todasCuentas] = await Promise.all([
+        obtenerCuenta(accessToken, cuentaId),
+        listarMovimientos(accessToken, cuentaId),
+        listarCuentas(accessToken),
+      ]);
       setCuenta(c);
       setMovimientos(m);
+      setCuentas(todasCuentas);
     } catch (err) {
       handleApiError(err);
     }
@@ -56,6 +97,19 @@ export function CuentaDetailPage() {
     cargar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, cuentaId]);
+
+  // El saldo actual es el saldo tras el movimiento más reciente (movimientos viene ordenado
+  // del más reciente al más antiguo); a partir de ahí se resta cada importe para saber cuánto
+  // quedaba justo después de cada movimiento anterior.
+  const movimientosConSaldo = (() => {
+    if (!movimientos || !cuenta) return [];
+    let saldo = Number(cuenta.saldo);
+    return movimientos.map((m) => {
+      const saldoTrasMovimiento = saldo;
+      saldo -= Number(m.importe);
+      return { ...m, saldoTrasMovimiento };
+    });
+  })();
 
   function abrirEditar() {
     if (!cuenta) return;
@@ -103,6 +157,162 @@ export function CuentaDetailPage() {
     } catch (err) {
       handleApiError(err);
     }
+  }
+
+  function abrirAjusteNuevo() {
+    setAjusteEditId(null);
+    setAjusteImporteReal('');
+    setAjusteConcepto('');
+    setShowAjuste(true);
+  }
+
+  async function abrirAjusteEditar(id: string) {
+    if (!accessToken) return;
+    setError(null);
+    try {
+      const ajuste = await obtenerAjusteArqueo(accessToken, id);
+      setAjusteEditId(id);
+      setAjusteImporteReal(ajuste.importeReal);
+      setAjusteConcepto(ajuste.concepto ?? '');
+      setShowAjuste(true);
+    } catch (err) {
+      handleApiError(err);
+    }
+  }
+
+  async function handleGuardarAjuste(event: FormEvent) {
+    event.preventDefault();
+    if (!accessToken || !cuentaId) return;
+    setError(null);
+    setGuardandoAjuste(true);
+    try {
+      const data = { importeReal: Number(ajusteImporteReal || 0), concepto: ajusteConcepto || undefined };
+      if (ajusteEditId) await actualizarAjusteArqueo(accessToken, ajusteEditId, data);
+      else await crearAjusteArqueo(accessToken, cuentaId, data);
+      setShowAjuste(false);
+      await cargar();
+    } catch (err) {
+      handleApiError(err);
+    } finally {
+      setGuardandoAjuste(false);
+    }
+  }
+
+  async function handleEliminarAjuste(id: string) {
+    if (!accessToken) return;
+    setError(null);
+    try {
+      await eliminarAjusteArqueo(accessToken, id);
+      await cargar();
+    } catch (err) {
+      handleApiError(err);
+    }
+  }
+
+  async function abrirTransferenciaEditar(id: string) {
+    if (!accessToken) return;
+    setError(null);
+    try {
+      const transferencia = await obtenerTransferencia(accessToken, id);
+      setTransferenciaEditId(id);
+      setTransOrigenId(transferencia.origenId);
+      setTransDestinoId(transferencia.destinoId);
+      setTransImporte(transferencia.importe);
+      setTransConcepto(transferencia.concepto ?? '');
+      setShowTransferencia(true);
+    } catch (err) {
+      handleApiError(err);
+    }
+  }
+
+  async function handleGuardarTransferencia(event: FormEvent) {
+    event.preventDefault();
+    if (!accessToken || !transferenciaEditId) return;
+    setError(null);
+    setGuardandoTransferencia(true);
+    try {
+      await actualizarTransferencia(accessToken, transferenciaEditId, {
+        origenId: transOrigenId,
+        destinoId: transDestinoId,
+        importe: Number(transImporte || 0),
+        concepto: transConcepto || undefined,
+      });
+      setShowTransferencia(false);
+      await cargar();
+    } catch (err) {
+      handleApiError(err);
+    } finally {
+      setGuardandoTransferencia(false);
+    }
+  }
+
+  async function handleEliminarTransferencia(id: string) {
+    if (!accessToken) return;
+    setError(null);
+    try {
+      await eliminarTransferencia(accessToken, id);
+      await cargar();
+    } catch (err) {
+      handleApiError(err);
+    }
+  }
+
+  async function abrirCapitalEditar(id: string) {
+    if (!accessToken) return;
+    setError(null);
+    try {
+      const movimiento = await obtenerMovimientoCapital(accessToken, id);
+      setCapitalEditId(id);
+      setCapitalTipo(movimiento.tipo);
+      setCapitalImporte(movimiento.importe);
+      setCapitalConcepto(movimiento.concepto ?? '');
+      setShowCapital(true);
+    } catch (err) {
+      handleApiError(err);
+    }
+  }
+
+  async function handleGuardarCapital(event: FormEvent) {
+    event.preventDefault();
+    if (!accessToken || !capitalEditId) return;
+    setError(null);
+    setGuardandoCapital(true);
+    try {
+      await actualizarMovimientoCapital(accessToken, capitalEditId, {
+        tipo: capitalTipo,
+        importe: Number(capitalImporte || 0),
+        concepto: capitalConcepto || undefined,
+      });
+      setShowCapital(false);
+      await cargar();
+    } catch (err) {
+      handleApiError(err);
+    } finally {
+      setGuardandoCapital(false);
+    }
+  }
+
+  async function handleEliminarCapital(id: string) {
+    if (!accessToken) return;
+    setError(null);
+    try {
+      await eliminarMovimientoCapital(accessToken, id);
+      await cargar();
+    } catch (err) {
+      handleApiError(err);
+    }
+  }
+
+  function handleEditarMovimiento(origenTipo: MovimientoCuenta['origenTipo'], origenId: string) {
+    if (origenTipo === 'TRANSFERENCIA') abrirTransferenciaEditar(origenId);
+    else if (origenTipo === 'CAPITAL') abrirCapitalEditar(origenId);
+    else if (origenTipo === 'AJUSTE_ARQUEO') abrirAjusteEditar(origenId);
+  }
+
+  function handleEliminarMovimiento(origenTipo: MovimientoCuenta['origenTipo'], origenId: string) {
+    if (origenTipo === 'TRANSFERENCIA') handleEliminarTransferencia(origenId);
+    else if (origenTipo === 'CAPITAL') handleEliminarCapital(origenId);
+    else if (origenTipo === 'AJUSTE_ARQUEO') handleEliminarAjuste(origenId);
   }
 
   return (
@@ -154,6 +364,132 @@ export function CuentaDetailPage() {
           </form>
         </Modal>
 
+        <Modal open={showAjuste} onClose={() => setShowAjuste(false)} title="Ajuste de arqueo">
+          <form className="crud-form" onSubmit={handleGuardarAjuste}>
+            <p>
+              En teoría hay <strong>{cuenta?.saldo} €</strong>
+            </p>
+            <div className="crud-form-row">
+              <label className="crud-field">
+                <span>Real (contado)</span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={ajusteImporteReal}
+                  onChange={(e) => setAjusteImporteReal(e.target.value)}
+                  required
+                />
+              </label>
+              <label className="crud-field">
+                <span>Concepto (opcional)</span>
+                <input value={ajusteConcepto} onChange={(e) => setAjusteConcepto(e.target.value)} />
+              </label>
+            </div>
+            <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowAjuste(false)}>
+                Cancelar
+              </button>
+              <button type="submit" className="crud-btn-primary" disabled={guardandoAjuste}>
+                {guardandoAjuste ? 'Guardando…' : 'Guardar'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+
+        <Modal open={showTransferencia} onClose={() => setShowTransferencia(false)} title="Editar transferencia">
+          <form className="crud-form" onSubmit={handleGuardarTransferencia}>
+            <div className="crud-form-row">
+              <label className="crud-field">
+                <span>Desde</span>
+                <select value={transOrigenId} onChange={(e) => setTransOrigenId(e.target.value)} required>
+                  <option value="">Selecciona…</option>
+                  {cuentasActivas.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="crud-field">
+                <span>Hacia</span>
+                <select value={transDestinoId} onChange={(e) => setTransDestinoId(e.target.value)} required>
+                  <option value="">Selecciona…</option>
+                  {cuentasActivas.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+            <div className="crud-form-row">
+              <label className="crud-field">
+                <span>Importe (€)</span>
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={transImporte}
+                  onChange={(e) => setTransImporte(e.target.value)}
+                  required
+                />
+              </label>
+              <label className="crud-field">
+                <span>Concepto (opcional)</span>
+                <input value={transConcepto} onChange={(e) => setTransConcepto(e.target.value)} />
+              </label>
+            </div>
+            <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowTransferencia(false)}>
+                Cancelar
+              </button>
+              <button type="submit" className="crud-btn-primary" disabled={guardandoTransferencia}>
+                {guardandoTransferencia ? 'Guardando…' : 'Guardar'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+
+        <Modal open={showCapital} onClose={() => setShowCapital(false)} title="Editar entrada/salida de dinero">
+          <form className="crud-form" onSubmit={handleGuardarCapital}>
+            <div className="crud-form-row">
+              <label className="crud-field">
+                <span>Tipo</span>
+                <select value={capitalTipo} onChange={(e) => setCapitalTipo(e.target.value as TipoMovimientoCapital)}>
+                  <option value="ENTRADA">Entrada de dinero</option>
+                  <option value="SALIDA">Salida de dinero</option>
+                </select>
+              </label>
+              <label className="crud-field">
+                <span>Importe (€)</span>
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={capitalImporte}
+                  onChange={(e) => setCapitalImporte(e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+            <div className="crud-form-row">
+              <label className="crud-field">
+                <span>Concepto (opcional)</span>
+                <input value={capitalConcepto} onChange={(e) => setCapitalConcepto(e.target.value)} />
+              </label>
+            </div>
+            <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setShowCapital(false)}>
+                Cancelar
+              </button>
+              <button type="submit" className="crud-btn-primary" disabled={guardandoCapital}>
+                {guardandoCapital ? 'Guardando…' : 'Guardar'}
+              </button>
+            </div>
+          </form>
+        </Modal>
+
         {cuenta && (
           <div className="detail-card">
             <div className="detail-hero">
@@ -174,6 +510,11 @@ export function CuentaDetailPage() {
               <button type="button" className="crud-link-btn" onClick={handleToggleActiva}>
                 {cuenta.activa ? 'Desactivar' : 'Activar'}
               </button>
+              {cuenta.tipo === 'CAJA' && (
+                <button type="button" className="crud-link-btn" onClick={abrirAjusteNuevo}>
+                  Ajuste de arqueo
+                </button>
+              )}
               <button type="button" className="crud-delete-btn" onClick={handleEliminar}>
                 Eliminar
               </button>
@@ -188,8 +529,9 @@ export function CuentaDetailPage() {
         <div className="crud-list">
           {movimientos === null && <p className="crud-empty">Cargando…</p>}
           {movimientos?.length === 0 && <p className="crud-empty">No hay movimientos todavía.</p>}
-          {movimientos?.map((m) => {
+          {movimientosConSaldo.map((m) => {
             const positivo = Number(m.importe) >= 0;
+            const editable = m.origenTipo != null && m.origenId != null;
             return (
               <div key={m.journalEntryId} className="crud-card">
                 <div className="crud-card-row">
@@ -200,12 +542,37 @@ export function CuentaDetailPage() {
                     </div>
                   </div>
                   <div className="crud-card-actions">
-                    <strong style={{ color: positivo ? 'var(--color-success)' : 'var(--color-danger)' }}>
-                      {positivo ? '+' : ''}
-                      {m.importe} €
-                    </strong>
+                    <div style={{ textAlign: 'right' }}>
+                      <div>
+                        <strong style={{ color: positivo ? 'var(--color-success)' : 'var(--color-danger)' }}>
+                          {positivo ? '+' : ''}
+                          {m.importe} €
+                        </strong>
+                      </div>
+                      <div className="crud-card-meta">Saldo: {m.saldoTrasMovimiento.toFixed(2)} €</div>
+                    </div>
                   </div>
                 </div>
+                {editable && (
+                  <div className="crud-card-row" style={{ justifyContent: 'flex-end' }}>
+                    <div className="crud-card-actions">
+                      <button
+                        type="button"
+                        className="crud-link-btn"
+                        onClick={() => handleEditarMovimiento(m.origenTipo, m.origenId!)}
+                      >
+                        Editar
+                      </button>
+                      <button
+                        type="button"
+                        className="crud-delete-btn"
+                        onClick={() => handleEliminarMovimiento(m.origenTipo, m.origenId!)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
