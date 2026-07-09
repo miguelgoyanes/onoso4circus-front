@@ -17,6 +17,9 @@ import { PersonalPage } from './pages/PersonalPage';
 import { EmpleadoDetailPage } from './pages/EmpleadoDetailPage';
 import { StockPage } from './pages/StockPage';
 import { StockDetailPage } from './pages/StockDetailPage';
+import { VentasPage } from './pages/VentasPage';
+import { ContratosPage } from './pages/ContratosPage';
+import { ContratoDetailPage } from './pages/ContratoDetailPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -44,6 +47,9 @@ function AppRoutes() {
         <Route path="/personal/:empleadoId" element={<EmpleadoDetailPage />} />
         <Route path="/stock" element={<StockPage />} />
         <Route path="/stock/:productoId" element={<StockDetailPage />} />
+        <Route path="/ventas" element={<VentasPage />} />
+        <Route path="/ventas/contratos" element={<ContratosPage />} />
+        <Route path="/ventas/contratos/:contratoId" element={<ContratoDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
