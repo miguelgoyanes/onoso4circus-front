@@ -43,6 +43,9 @@ export function WelcomePage() {
             <Link to="/analisis" className="welcome-link">
               Análisis
             </Link>
+            <Link to="/contabilidad" className="welcome-link">
+              Contabilidad
+            </Link>
           </>
         )}
 

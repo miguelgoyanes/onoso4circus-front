@@ -39,6 +39,12 @@ import { AnalisisPlazasPage } from './pages/AnalisisPlazasPage';
 import { AnalisisPlazaDetailPage } from './pages/AnalisisPlazaDetailPage';
 import { AnalisisActivosPage } from './pages/AnalisisActivosPage';
 import { AnalisisFlujoCajaPage } from './pages/AnalisisFlujoCajaPage';
+import { ContabilidadPage } from './pages/ContabilidadPage';
+import { LibroDiarioPage } from './pages/LibroDiarioPage';
+import { LibroMayorPage } from './pages/LibroMayorPage';
+import { LibroMayorDetailPage } from './pages/LibroMayorDetailPage';
+import { PygPage } from './pages/PygPage';
+import { BalancePage } from './pages/BalancePage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -88,6 +94,12 @@ function AppRoutes() {
         <Route path="/analisis/plazas/:plazaId" element={<AnalisisPlazaDetailPage />} />
         <Route path="/analisis/activos" element={<AnalisisActivosPage />} />
         <Route path="/analisis/flujo-caja" element={<AnalisisFlujoCajaPage />} />
+        <Route path="/contabilidad" element={<ContabilidadPage />} />
+        <Route path="/contabilidad/diario" element={<LibroDiarioPage />} />
+        <Route path="/contabilidad/mayor" element={<LibroMayorPage />} />
+        <Route path="/contabilidad/mayor/:cuentaId" element={<LibroMayorDetailPage />} />
+        <Route path="/contabilidad/pyg" element={<PygPage />} />
+        <Route path="/contabilidad/balance" element={<BalancePage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

@@ -21,13 +21,37 @@ export function periodoEsteAnio(): Periodo {
   return { desde: toISO(new Date(Date.UTC(hoy.getUTCFullYear(), 0, 1))), hasta: toISO(hoy) };
 }
 
-export function PeriodoSelector({ periodo, onChange }: { periodo: Periodo; onChange: (periodo: Periodo) => void }) {
+// Variante "mes/año completo" (no capada en hoy) — para vistas tipo libro contable (Libro
+// diario/mayor, PyG) que deben incluir también asientos con fecha futura dentro del mismo
+// mes/año (p. ej. una venta de un pase de una fecha próxima ya vendida hoy). Análisis usa
+// las variantes de arriba a propósito porque ahí "Este mes" significa "lo llevado hasta hoy".
+export function periodoEsteMesCompleto(): Periodo {
+  const hoy = new Date();
+  const ultimoDia = new Date(Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth() + 1, 0));
+  return { desde: toISO(new Date(Date.UTC(hoy.getUTCFullYear(), hoy.getUTCMonth(), 1))), hasta: toISO(ultimoDia) };
+}
+
+export function periodoEsteAnioCompleto(): Periodo {
+  const hoy = new Date();
+  return { desde: toISO(new Date(Date.UTC(hoy.getUTCFullYear(), 0, 1))), hasta: toISO(new Date(Date.UTC(hoy.getUTCFullYear(), 11, 31))) };
+}
+
+export function PeriodoSelector({
+  periodo,
+  onChange,
+  completo = false,
+}: {
+  periodo: Periodo;
+  onChange: (periodo: Periodo) => void;
+  // Ver periodoEsteMesCompleto/periodoEsteAnioCompleto — solo lo pasan las páginas de Contabilidad.
+  completo?: boolean;
+}) {
   const [preset, setPreset] = useState<PeriodoPreset>('mes');
 
   function seleccionar(p: PeriodoPreset) {
     setPreset(p);
-    if (p === 'mes') onChange(periodoEsteMes());
-    else if (p === 'anio') onChange(periodoEsteAnio());
+    if (p === 'mes') onChange(completo ? periodoEsteMesCompleto() : periodoEsteMes());
+    else if (p === 'anio') onChange(completo ? periodoEsteAnioCompleto() : periodoEsteAnio());
   }
 
   return (
