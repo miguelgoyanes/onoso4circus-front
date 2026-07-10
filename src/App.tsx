@@ -34,6 +34,11 @@ import { BarRegistrarVentaPage } from './pages/BarRegistrarVentaPage';
 import { ActivosPage } from './pages/ActivosPage';
 import { CategoriasActivoPage } from './pages/CategoriasActivoPage';
 import { ActivoDetailPage } from './pages/ActivoDetailPage';
+import { AnalisisPage } from './pages/AnalisisPage';
+import { AnalisisPlazasPage } from './pages/AnalisisPlazasPage';
+import { AnalisisPlazaDetailPage } from './pages/AnalisisPlazaDetailPage';
+import { AnalisisActivosPage } from './pages/AnalisisActivosPage';
+import { AnalisisFlujoCajaPage } from './pages/AnalisisFlujoCajaPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -78,6 +83,11 @@ function AppRoutes() {
         <Route path="/activos" element={<ActivosPage />} />
         <Route path="/activos/categorias" element={<CategoriasActivoPage />} />
         <Route path="/activos/:activoId" element={<ActivoDetailPage />} />
+        <Route path="/analisis" element={<AnalisisPage />} />
+        <Route path="/analisis/plazas" element={<AnalisisPlazasPage />} />
+        <Route path="/analisis/plazas/:plazaId" element={<AnalisisPlazaDetailPage />} />
+        <Route path="/analisis/activos" element={<AnalisisActivosPage />} />
+        <Route path="/analisis/flujo-caja" element={<AnalisisFlujoCajaPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

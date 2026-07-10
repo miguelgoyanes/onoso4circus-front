@@ -40,6 +40,9 @@ export function WelcomePage() {
             <Link to="/activos" className="welcome-link">
               Activos
             </Link>
+            <Link to="/analisis" className="welcome-link">
+              Análisis
+            </Link>
           </>
         )}
 
