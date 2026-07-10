@@ -45,6 +45,8 @@ import { LibroMayorPage } from './pages/LibroMayorPage';
 import { LibroMayorDetailPage } from './pages/LibroMayorDetailPage';
 import { PygPage } from './pages/PygPage';
 import { BalancePage } from './pages/BalancePage';
+import { PlazasWebPage } from './pages/PlazasWebPage';
+import { PlazaWebDetailPage } from './pages/PlazaWebDetailPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -100,6 +102,8 @@ function AppRoutes() {
         <Route path="/contabilidad/mayor/:cuentaId" element={<LibroMayorDetailPage />} />
         <Route path="/contabilidad/pyg" element={<PygPage />} />
         <Route path="/contabilidad/balance" element={<BalancePage />} />
+        <Route path="/plazas-web" element={<PlazasWebPage />} />
+        <Route path="/plazas-web/:plazaWebId" element={<PlazaWebDetailPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
