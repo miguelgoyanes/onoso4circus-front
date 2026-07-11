@@ -89,6 +89,10 @@ export function crearGasto(token: string, data: CrearGastoInput): Promise<Gasto>
   return apiFetch<Gasto>('/gastos', token, { method: 'POST', body: JSON.stringify(data) });
 }
 
+export function actualizarGasto(token: string, id: string, data: CrearGastoInput): Promise<Gasto> {
+  return apiFetch<Gasto>(`/gastos/${id}`, token, { method: 'PATCH', body: JSON.stringify(data) });
+}
+
 export function pagarGasto(token: string, id: string, cuentaPagoId: string): Promise<Gasto> {
   return apiFetch<Gasto>(`/gastos/${id}/pagar`, token, {
     method: 'POST',
