@@ -84,3 +84,9 @@ export function reclasificarLoteVentasBar(
 export function eliminarVentaBar(token: string, id: string): Promise<void> {
   return apiFetch<void>(`/ventas-bar/${id}`, token, { method: 'DELETE' });
 }
+
+// Coste actual de un producto ELABORADO (ej. palomitas), calculado en caliente a partir de
+// los insumos vinculados a su familia — ver CosteElaboradoService en el backend.
+export function obtenerCosteElaborado(token: string, productoId: string): Promise<{ costeUnitarioActual: string }> {
+  return apiFetch<{ costeUnitarioActual: string }>(`/ventas-bar/coste-elaborado/${productoId}`, token);
+}

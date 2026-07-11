@@ -13,6 +13,7 @@ import {
   eliminarAjusteStock,
   eliminarProducto,
   eliminarRecepcionStock,
+  iniciarUsoLote,
   listarAjustesStock,
   listarRecepcionesStock,
   obtenerProducto,
@@ -22,7 +23,9 @@ import {
   type RecepcionStock,
   type TipoAjusteStock,
   type TipoFiscal,
+  type UnidadMedida,
 } from '../api/stock';
+import { obtenerCosteElaborado } from '../api/bar';
 import { listarCuentas, type CuentaPublica } from '../api/tesoreria';
 import {
   construirHistorialStock,
@@ -38,6 +41,12 @@ import { CamposRecepcion } from '../components/CamposRecepcion';
 import '../styles/crud-page.css';
 
 const TIPOS_AJUSTE: TipoAjusteStock[] = ['CONSUMO_INTERNO', 'MERMA'];
+const UNIDADES_MEDIDA: UnidadMedida[] = ['KG', 'GRAMOS', 'LITROS', 'MILILITROS', 'UNIDADES'];
+const ETIQUETA_ESTADO_LOTE: Record<string, string> = {
+  POR_CONSUMIR: 'Por consumir',
+  CONSUMIENDO: 'Consumiéndose',
+  CONSUMIDO: 'Consumido',
+};
 
 export function StockDetailPage() {
   const { productoId } = useParams<{ productoId: string }>();
@@ -65,6 +74,8 @@ export function StockDetailPage() {
   const [recCosteTotal, setRecCosteTotal] = useState('');
   const [recFecha, setRecFecha] = useState('');
   const [recCuentaOrigenId, setRecCuentaOrigenId] = useState('');
+  const [recCantidadMedida, setRecCantidadMedida] = useState('');
+  const [recUnidadMedida, setRecUnidadMedida] = useState<UnidadMedida>('KG');
 
   const [editandoRecepcionId, setEditandoRecepcionId] = useState<string | null>(null);
   const [erCantidad, setErCantidad] = useState('');
@@ -74,6 +85,15 @@ export function StockDetailPage() {
   const [erCosteTotal, setErCosteTotal] = useState('');
   const [erFecha, setErFecha] = useState('');
   const [erCuentaOrigenId, setErCuentaOrigenId] = useState('');
+  const [erCantidadMedida, setErCantidadMedida] = useState('');
+  const [erUnidadMedida, setErUnidadMedida] = useState<UnidadMedida>('KG');
+
+  // Ciclo de uso de un lote de INSUMO — única acción manual, con fecha seleccionable.
+  const [abriendoLoteId, setAbriendoLoteId] = useState<string | null>(null);
+  const [abrirLoteFecha, setAbrirLoteFecha] = useState('');
+
+  // Coste calculado de un ELABORADO (no se guarda, se pide al backend bajo demanda).
+  const [costeElaborado, setCosteElaborado] = useState<string | null>(null);
 
   const [showAjuste, setShowAjuste] = useState(false);
   const [ajTipo, setAjTipo] = useState<TipoAjusteStock>('MERMA');
@@ -125,6 +145,12 @@ export function StockDetailPage() {
       setCuentas(cuentasData);
       setRecepciones(recepcionesData);
       setAjustes(ajustesData);
+      if (p.tipo === 'ELABORADO') {
+        const { costeUnitarioActual } = await obtenerCosteElaborado(accessToken, productoId);
+        setCosteElaborado(costeUnitarioActual);
+      } else {
+        setCosteElaborado(null);
+      }
     } catch (err) {
       handleApiError(err);
     }
@@ -153,7 +179,7 @@ export function StockDetailPage() {
     try {
       await actualizarProducto(accessToken, productoId, {
         nombre: editNombre,
-        precioVentaPublico: Number(editPrecio),
+        precioVentaPublico: producto?.tipo === 'INSUMO' ? undefined : Number(editPrecio),
         aplicaIva: editAplicaIva,
       });
       if (editImagenFile) {
@@ -201,12 +227,15 @@ export function StockDetailPage() {
 
   // Recepción — crear
   function abrirRecepcion() {
-    setRecCantidad('');
+    const esInsumo = producto?.tipo === 'INSUMO';
+    setRecCantidad(esInsumo ? '1' : '');
     setRecTipoFiscal('B');
     setRecIvaPercent('');
     setRecCosteUnitario('');
     setRecCosteTotal('');
     setRecFecha(datetimeLocalAhora());
+    setRecCantidadMedida('');
+    setRecUnidadMedida('KG');
     const cuentaPorDefecto = cuentas.find((c) => c.activa);
     setRecCuentaOrigenId(cuentaPorDefecto?.id ?? '');
     setShowRecepcion(true);
@@ -215,17 +244,21 @@ export function StockDetailPage() {
   async function handleCrearRecepcion(event: FormEvent) {
     event.preventDefault();
     if (!accessToken || !productoId) return;
+    const esInsumo = producto?.tipo === 'INSUMO';
+    const cantidad = esInsumo ? 1 : Number(recCantidad);
     setError(null);
     try {
       await crearRecepcionStock(accessToken, {
         productoId,
-        cantidad: Number(recCantidad),
+        cantidad,
         fecha: isoDesdeDatetimeLocal(recFecha),
         cuentaOrigenId: recCuentaOrigenId,
         tipoFiscal: recTipoFiscal,
         costeUnitario: recTipoFiscal === 'B' ? Number(recCosteUnitario) : undefined,
         ivaPercent: recTipoFiscal === 'A' ? Number(recIvaPercent) : undefined,
-        baseImponible: recTipoFiscal === 'A' ? Number(recCosteUnitario) * Number(recCantidad) : undefined,
+        baseImponible: recTipoFiscal === 'A' ? Number(recCosteUnitario) * cantidad : undefined,
+        cantidadMedida: esInsumo && recCantidadMedida ? Number(recCantidadMedida) : undefined,
+        unidadMedida: esInsumo ? recUnidadMedida : undefined,
       });
       setShowRecepcion(false);
       await cargar();
@@ -244,21 +277,27 @@ export function StockDetailPage() {
     setErCosteTotal(r.importeTotal);
     setErFecha(datetimeLocalDesdeIso(r.fecha));
     setErCuentaOrigenId(r.cuentaOrigenId);
+    setErCantidadMedida(r.cantidadMedida ?? '');
+    setErUnidadMedida(r.unidadMedida ?? 'KG');
   }
 
   async function handleActualizarRecepcion(event: FormEvent) {
     event.preventDefault();
     if (!accessToken || !editandoRecepcionId) return;
+    const esInsumo = producto?.tipo === 'INSUMO';
+    const cantidad = esInsumo ? 1 : Number(erCantidad);
     setError(null);
     try {
       await actualizarRecepcionStock(accessToken, editandoRecepcionId, {
-        cantidad: Number(erCantidad),
+        cantidad,
         fecha: isoDesdeDatetimeLocal(erFecha),
         cuentaOrigenId: erCuentaOrigenId,
         tipoFiscal: erTipoFiscal,
         costeUnitario: erTipoFiscal === 'B' ? Number(erCosteUnitario) : undefined,
         ivaPercent: erTipoFiscal === 'A' ? Number(erIvaPercent) : undefined,
-        baseImponible: erTipoFiscal === 'A' ? Number(erCosteUnitario) * Number(erCantidad) : undefined,
+        baseImponible: erTipoFiscal === 'A' ? Number(erCosteUnitario) * cantidad : undefined,
+        cantidadMedida: esInsumo && erCantidadMedida ? Number(erCantidadMedida) : undefined,
+        unidadMedida: esInsumo ? erUnidadMedida : undefined,
       });
       setEditandoRecepcionId(null);
       await cargar();
@@ -272,6 +311,25 @@ export function StockDetailPage() {
     setError(null);
     try {
       await eliminarRecepcionStock(accessToken, id);
+      await cargar();
+    } catch (err) {
+      handleApiError(err);
+    }
+  }
+
+  // Lote de INSUMO — iniciar uso (única acción manual, fecha seleccionable)
+  function abrirIniciarUso(loteId: string) {
+    setAbriendoLoteId(loteId);
+    setAbrirLoteFecha(datetimeLocalAhora());
+  }
+
+  async function handleIniciarUso(event: FormEvent) {
+    event.preventDefault();
+    if (!accessToken || !abriendoLoteId) return;
+    setError(null);
+    try {
+      await iniciarUsoLote(accessToken, abriendoLoteId, isoDesdeDatetimeLocal(abrirLoteFecha));
+      setAbriendoLoteId(null);
       await cargar();
     } catch (err) {
       handleApiError(err);
@@ -369,13 +427,29 @@ export function StockDetailPage() {
                   style={{ width: 96, height: 96, borderRadius: 'var(--radius)', objectFit: 'cover', margin: '0 auto var(--space-3)' }}
                 />
               )}
-              <div className="detail-hero-amount">{producto.cantidadActual} uds.</div>
-              <p style={{ margin: '0 0 var(--space-2)', color: 'var(--color-text-muted)' }}>
-                valor <strong>{(producto.cantidadActual * Number(producto.costeUnitarioActual)).toFixed(2)}</strong> €
-              </p>
+              {producto.tipo === 'VENTA_DIRECTA' && (
+                <>
+                  <div className="detail-hero-amount">{producto.cantidadActual} uds.</div>
+                  <p style={{ margin: '0 0 var(--space-2)', color: 'var(--color-text-muted)' }}>
+                    valor <strong>{(producto.cantidadActual * Number(producto.costeUnitarioActual)).toFixed(2)}</strong> €
+                  </p>
+                </>
+              )}
+              {producto.tipo === 'INSUMO' && (
+                <div className="detail-hero-amount">{recepciones.length} lote{recepciones.length === 1 ? '' : 's'}</div>
+              )}
+              {producto.tipo === 'ELABORADO' && (
+                <>
+                  <div className="detail-hero-amount">{costeElaborado ?? '…'} €</div>
+                  <p style={{ margin: '0 0 var(--space-2)', color: 'var(--color-text-muted)' }}>
+                    coste aproximado — media histórica de lotes de insumo ya cerrados
+                  </p>
+                </>
+              )}
               <div className="detail-hero-meta">
-                <span>coste {producto.costeUnitarioActual} €</span>
-                <span>PVP {producto.precioVentaPublico} €</span>
+                {producto.tipo === 'VENTA_DIRECTA' && <span>coste {producto.costeUnitarioActual} €</span>}
+                {producto.tipo === 'ELABORADO' && <span>factor {producto.factorEquivalencia}</span>}
+                {producto.tipo !== 'INSUMO' && <span>PVP {producto.precioVentaPublico} €</span>}
                 {producto.aplicaIva && <span className="badge badge-muted">IVA</span>}
                 <span className={producto.activo ? 'badge badge-success' : 'badge badge-danger'}>
                   {producto.activo ? 'Activo' : 'Inactivo'}
@@ -384,12 +458,16 @@ export function StockDetailPage() {
             </div>
 
             <div className="detail-footer">
-              <button type="button" className="crud-link-btn" onClick={abrirRecepcion}>
-                Recepción
-              </button>
-              <button type="button" className="crud-link-btn" onClick={abrirAjuste}>
-                Ajuste
-              </button>
+              {producto.tipo !== 'ELABORADO' && (
+                <button type="button" className="crud-link-btn" onClick={abrirRecepcion}>
+                  {producto.tipo === 'INSUMO' ? 'Nuevo lote' : 'Recepción'}
+                </button>
+              )}
+              {producto.tipo === 'VENTA_DIRECTA' && (
+                <button type="button" className="crud-link-btn" onClick={abrirAjuste}>
+                  Ajuste
+                </button>
+              )}
               <button type="button" className="crud-link-btn" onClick={abrirEditarProducto}>
                 Editar
               </button>
@@ -409,6 +487,63 @@ export function StockDetailPage() {
               )}
             </div>
 
+            {producto.tipo === 'INSUMO' && (
+              <div className="detail-section">
+                <p className="detail-section-title">Lotes</p>
+                {recepciones.length === 0 && <p className="crud-empty">Sin lotes todavía.</p>}
+                <div className="crud-list">
+                  {recepciones.map((lote) => (
+                    <div key={lote.id} className="crud-card">
+                      <div className="crud-card-row">
+                        <div className="crud-card-info">
+                          <div className="crud-card-title">
+                            {lote.cantidadMedida ? `${lote.cantidadMedida} ${lote.unidadMedida ?? ''}` : 'Lote'} —{' '}
+                            {lote.baseImponible} €
+                          </div>
+                          <div className="crud-card-meta">
+                            <span
+                              className={
+                                lote.estadoLote === 'CONSUMIENDO'
+                                  ? 'badge badge-success'
+                                  : lote.estadoLote === 'CONSUMIDO'
+                                    ? 'badge badge-muted'
+                                    : 'badge'
+                              }
+                            >
+                              {ETIQUETA_ESTADO_LOTE[lote.estadoLote ?? 'POR_CONSUMIR']}
+                            </span>
+                            <span>comprado {new Date(lote.fecha).toLocaleDateString()}</span>
+                            {lote.fechaInicioUso && (
+                              <span>en uso desde {new Date(lote.fechaInicioUso).toLocaleDateString()}</span>
+                            )}
+                            {lote.cerrado && <span className="badge badge-muted">Coste ya asentado</span>}
+                          </div>
+                        </div>
+                        <div className="crud-card-actions">
+                          {lote.estadoLote === 'POR_CONSUMIR' && (
+                            <button type="button" className="crud-link-btn" onClick={() => abrirIniciarUso(lote.id)}>
+                              Empezar a consumir
+                            </button>
+                          )}
+                          {!lote.cerrado && (
+                            <>
+                              <button type="button" className="crud-link-btn" onClick={() => abrirEditarRecepcion(lote)}>
+                                Editar
+                              </button>
+                              <button type="button" className="crud-delete-btn" onClick={() => handleEliminarRecepcion(lote.id)}>
+                                Eliminar
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {producto.tipo === 'VENTA_DIRECTA' && (
             <div className="detail-section">
               <p className="detail-section-title">Historial de stock</p>
               {historial.length === 0 && <p className="crud-empty">Sin movimientos todavía.</p>}
@@ -475,6 +610,7 @@ export function StockDetailPage() {
                 ))}
               </div>
             </div>
+            )}
           </div>
         )}
 
@@ -492,17 +628,19 @@ export function StockDetailPage() {
                 <span>Nombre</span>
                 <input value={editNombre} onChange={(e) => setEditNombre(e.target.value)} required />
               </label>
-              <label className="crud-field">
-                <span>Precio de venta al público (€)</span>
-                <input
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={editPrecio}
-                  onChange={(e) => setEditPrecio(e.target.value)}
-                  required
-                />
-              </label>
+              {producto?.tipo !== 'INSUMO' && (
+                <label className="crud-field">
+                  <span>Precio de venta al público (€)</span>
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={editPrecio}
+                    onChange={(e) => setEditPrecio(e.target.value)}
+                    required
+                  />
+                </label>
+              )}
             </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <input type="checkbox" checked={editAplicaIva} onChange={(e) => setEditAplicaIva(e.target.checked)} />
@@ -519,7 +657,11 @@ export function StockDetailPage() {
           </form>
         </Modal>
 
-        <Modal open={showRecepcion} onClose={() => setShowRecepcion(false)} title="Recepción de stock">
+        <Modal
+          open={showRecepcion}
+          onClose={() => setShowRecepcion(false)}
+          title={producto?.tipo === 'INSUMO' ? 'Nuevo lote' : 'Recepción de stock'}
+        >
           <form className="crud-form" onSubmit={handleCrearRecepcion}>
             <CamposRecepcion
               cantidad={recCantidad}
@@ -528,7 +670,32 @@ export function StockDetailPage() {
               costeUnitario={recCosteUnitario}
               costeTotal={recCosteTotal}
               manejadores={manejadoresRecepcion}
+              mostrarCantidad={producto?.tipo !== 'INSUMO'}
             />
+            {producto?.tipo === 'INSUMO' && (
+              <div className="crud-form-row">
+                <label className="crud-field">
+                  <span>Cantidad física comprada (informativo)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value={recCantidadMedida}
+                    onChange={(e) => setRecCantidadMedida(e.target.value)}
+                  />
+                </label>
+                <label className="crud-field">
+                  <span>Unidad</span>
+                  <select value={recUnidadMedida} onChange={(e) => setRecUnidadMedida(e.target.value as UnidadMedida)}>
+                    {UNIDADES_MEDIDA.map((u) => (
+                      <option key={u} value={u}>
+                        {u}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
             <div className="crud-form-row">
               <label className="crud-field">
                 <span>Fecha y hora</span>
@@ -562,6 +729,30 @@ export function StockDetailPage() {
           </form>
         </Modal>
 
+        <Modal open={abriendoLoteId !== null} onClose={() => setAbriendoLoteId(null)} title="Empezar a consumir este lote">
+          <form className="crud-form" onSubmit={handleIniciarUso}>
+            <div className="crud-form-row">
+              <label className="crud-field">
+                <span>Fecha y hora en que se abrió</span>
+                <input
+                  type="datetime-local"
+                  value={abrirLoteFecha}
+                  onChange={(e) => setAbrirLoteFecha(e.target.value)}
+                  required
+                />
+              </label>
+            </div>
+            <div className="crud-form-actions">
+              <button type="button" className="crud-form-cancel" onClick={() => setAbriendoLoteId(null)}>
+                Cancelar
+              </button>
+              <button type="submit" className="crud-btn-primary">
+                Confirmar
+              </button>
+            </div>
+          </form>
+        </Modal>
+
         <Modal
           open={editandoRecepcionId !== null}
           onClose={() => setEditandoRecepcionId(null)}
@@ -575,7 +766,32 @@ export function StockDetailPage() {
               costeUnitario={erCosteUnitario}
               costeTotal={erCosteTotal}
               manejadores={manejadoresEditarRecepcion}
+              mostrarCantidad={producto?.tipo !== 'INSUMO'}
             />
+            {producto?.tipo === 'INSUMO' && (
+              <div className="crud-form-row">
+                <label className="crud-field">
+                  <span>Cantidad física comprada (informativo)</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value={erCantidadMedida}
+                    onChange={(e) => setErCantidadMedida(e.target.value)}
+                  />
+                </label>
+                <label className="crud-field">
+                  <span>Unidad</span>
+                  <select value={erUnidadMedida} onChange={(e) => setErUnidadMedida(e.target.value as UnidadMedida)}>
+                    {UNIDADES_MEDIDA.map((u) => (
+                      <option key={u} value={u}>
+                        {u}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            )}
             <div className="crud-form-row">
               <label className="crud-field">
                 <span>Fecha y hora</span>

@@ -8,6 +8,7 @@ export function CamposRecepcion({
   costeUnitario,
   costeTotal,
   manejadores,
+  mostrarCantidad = true,
 }: {
   cantidad: string;
   tipoFiscal: TipoFiscal;
@@ -15,21 +16,26 @@ export function CamposRecepcion({
   costeUnitario: string;
   costeTotal: string;
   manejadores: ManejadoresRecepcion;
+  // false para INSUMO — cada lote es siempre 1 unidad (el saco/garrafa entero), no hay
+  // "cantidad" que preguntar; costeUnitario/costeTotal representan el coste del lote entero.
+  mostrarCantidad?: boolean;
 }) {
   return (
     <>
       <div className="crud-form-row">
-        <label className="crud-field">
-          <span>Cantidad</span>
-          <input
-            type="number"
-            min="1"
-            step="1"
-            value={cantidad}
-            onChange={(e) => manejadores.onChangeCantidad(e.target.value)}
-            required
-          />
-        </label>
+        {mostrarCantidad && (
+          <label className="crud-field">
+            <span>Cantidad</span>
+            <input
+              type="number"
+              min="1"
+              step="1"
+              value={cantidad}
+              onChange={(e) => manejadores.onChangeCantidad(e.target.value)}
+              required
+            />
+          </label>
+        )}
         <label className="crud-field">
           <span>¿Lleva IVA?</span>
           <select value={tipoFiscal} onChange={(e) => manejadores.onChangeTipoFiscal(e.target.value as TipoFiscal)}>

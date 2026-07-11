@@ -3,6 +3,9 @@ import { apiFetch, apiUpload } from './client';
 export type TipoAjusteStock = 'CONSUMO_INTERNO' | 'MERMA';
 export type TipoFiscal = 'A' | 'B';
 export type DireccionOrden = 'ARRIBA' | 'ABAJO';
+export type TipoProducto = 'VENTA_DIRECTA' | 'INSUMO' | 'ELABORADO';
+export type UnidadMedida = 'KG' | 'GRAMOS' | 'LITROS' | 'MILILITROS' | 'UNIDADES';
+export type EstadoLote = 'POR_CONSUMIR' | 'CONSUMIENDO' | 'CONSUMIDO';
 
 export interface Producto {
   id: string;
@@ -14,6 +17,9 @@ export interface Producto {
   activo: boolean;
   imagenUrl: string | null;
   orden: number;
+  tipo: TipoProducto;
+  familiaElaboradoId: string | null;
+  factorEquivalencia: string | null;
 }
 
 export interface RecepcionStock {
@@ -30,6 +36,24 @@ export interface RecepcionStock {
   tipoFiscal?: TipoFiscal;
   ivaPercent?: string;
   importeIva?: string;
+  cantidadMedida?: string;
+  unidadMedida?: UnidadMedida;
+  fechaInicioUso?: string;
+  estadoLote?: EstadoLote;
+  // true si ya se asentó su asiento de cierre — historia asentada, no editable ni eliminable.
+  cerrado?: boolean;
+}
+
+export interface FamiliaElaborado {
+  id: string;
+  nombre: string;
+}
+
+export interface VinculacionInsumo {
+  id: string;
+  insumoId: string;
+  insumoNombre: string;
+  familiaElaboradoId: string;
 }
 
 export interface AjusteStock {
@@ -70,7 +94,15 @@ export function obtenerProducto(token: string, id: string): Promise<Producto> {
 
 export function crearProducto(
   token: string,
-  data: { nombre: string; precioVentaPublico: number; aplicaIva: boolean },
+  data: {
+    nombre: string;
+    // Ausente para INSUMO — nunca se vende directamente, no tiene PVP.
+    precioVentaPublico?: number;
+    aplicaIva: boolean;
+    tipo?: TipoProducto;
+    familiaElaboradoId?: string;
+    factorEquivalencia?: number;
+  },
 ): Promise<Producto> {
   return apiFetch<Producto>('/productos', token, { method: 'POST', body: JSON.stringify(data) });
 }
@@ -78,7 +110,7 @@ export function crearProducto(
 export function actualizarProducto(
   token: string,
   id: string,
-  data: { nombre: string; precioVentaPublico: number; aplicaIva: boolean },
+  data: { nombre: string; precioVentaPublico?: number; aplicaIva: boolean },
 ): Promise<Producto> {
   return apiFetch<Producto>(`/productos/${id}`, token, { method: 'PATCH', body: JSON.stringify(data) });
 }
@@ -120,6 +152,8 @@ export function crearRecepcionStock(
     costeUnitario?: number;
     ivaPercent?: number;
     baseImponible?: number;
+    cantidadMedida?: number;
+    unidadMedida?: UnidadMedida;
   },
 ): Promise<RecepcionStock> {
   return apiFetch<RecepcionStock>('/recepciones-stock', token, { method: 'POST', body: JSON.stringify(data) });
@@ -137,6 +171,8 @@ export function actualizarRecepcionStock(
     costeUnitario?: number;
     ivaPercent?: number;
     baseImponible?: number;
+    cantidadMedida?: number;
+    unidadMedida?: UnidadMedida;
   },
 ): Promise<RecepcionStock> {
   return apiFetch<RecepcionStock>(`/recepciones-stock/${id}`, token, { method: 'PATCH', body: JSON.stringify(data) });
@@ -148,6 +184,38 @@ export function eliminarRecepcionStock(token: string, id: string): Promise<void>
 
 export function listarRecepcionesStock(token: string, productoId: string): Promise<RecepcionStock[]> {
   return apiFetch<RecepcionStock[]>(`/recepciones-stock?productoId=${productoId}`, token);
+}
+
+// Única acción manual del ciclo de un lote de INSUMO — fecha seleccionable, no solo "ahora".
+// Vive en /ventas-bar (no /recepciones-stock): cerrar el lote anterior exige leer ventas.
+export function iniciarUsoLote(token: string, id: string, fecha: string): Promise<RecepcionStock> {
+  return apiFetch<RecepcionStock>(`/ventas-bar/lotes/${id}/iniciar-uso`, token, {
+    method: 'POST',
+    body: JSON.stringify({ fecha }),
+  });
+}
+
+export function listarFamiliasElaborado(token: string): Promise<FamiliaElaborado[]> {
+  return apiFetch<FamiliaElaborado[]>('/familias-elaborado', token);
+}
+
+export function crearFamiliaElaborado(token: string, nombre: string): Promise<FamiliaElaborado> {
+  return apiFetch<FamiliaElaborado>('/familias-elaborado', token, { method: 'POST', body: JSON.stringify({ nombre }) });
+}
+
+export function listarInsumosDeFamilia(token: string, familiaId: string): Promise<VinculacionInsumo[]> {
+  return apiFetch<VinculacionInsumo[]>(`/familias-elaborado/${familiaId}/insumos`, token);
+}
+
+export function vincularInsumo(token: string, familiaId: string, insumoId: string): Promise<VinculacionInsumo> {
+  return apiFetch<VinculacionInsumo>(`/familias-elaborado/${familiaId}/insumos`, token, {
+    method: 'POST',
+    body: JSON.stringify({ insumoId }),
+  });
+}
+
+export function desvincularInsumo(token: string, vinculacionId: string): Promise<void> {
+  return apiFetch<void>(`/familias-elaborado/vinculaciones/${vinculacionId}`, token, { method: 'DELETE' });
 }
 
 export function crearAjusteStock(
