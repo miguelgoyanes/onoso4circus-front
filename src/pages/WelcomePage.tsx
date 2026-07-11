@@ -42,6 +42,10 @@ export function WelcomePage() {
   const { user, logout } = useAuth();
   if (!user) return null;
 
+  const modulosVisibles = tieneRol(user.rol, 'ADMIN')
+    ? MODULOS
+    : MODULOS.filter((m) => m.to === '/ventas');
+
   return (
     <div className="welcome-page">
       <div className="welcome-card">
@@ -49,9 +53,9 @@ export function WelcomePage() {
         <p className="welcome-email">{user.username}</p>
         <span className="welcome-role">{user.rol}</span>
 
-        {tieneRol(user.rol, 'ADMIN') && (
+        {modulosVisibles.length > 0 && (
           <div className="modules-grid">
-            {MODULOS.map(({ to, label, icon: Icon, color }) => (
+            {modulosVisibles.map(({ to, label, icon: Icon, color }) => (
               <Link key={to} to={to} className="module-tile">
                 <span className="module-tile-icon" style={{ background: color }}>
                   <Icon size={24} strokeWidth={2} />

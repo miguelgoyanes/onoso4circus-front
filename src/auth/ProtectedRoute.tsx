@@ -3,7 +3,7 @@ import { useAuth } from './AuthContext';
 import { tieneRol } from './roles';
 
 interface ProtectedRouteProps {
-  requiredRole?: string;
+  requiredRole?: string | string[];
 }
 
 export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
@@ -12,8 +12,11 @@ export function ProtectedRoute({ requiredRole }: ProtectedRouteProps) {
   if (!accessToken || !user) {
     return <Navigate to="/login" replace />;
   }
-  if (requiredRole && !tieneRol(user.rol, requiredRole)) {
-    return <Navigate to="/" replace />;
+  if (requiredRole) {
+    const rolesPermitidos = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
+    if (!rolesPermitidos.some((rol) => tieneRol(user.rol, rol))) {
+      return <Navigate to="/" replace />;
+    }
   }
 
   return <Outlet />;

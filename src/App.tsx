@@ -75,19 +75,8 @@ function AppRoutes() {
         <Route path="/personal/:empleadoId" element={<EmpleadoDetailPage />} />
         <Route path="/stock" element={<StockPage />} />
         <Route path="/stock/:productoId" element={<StockDetailPage />} />
-        <Route path="/ventas" element={<VentasPage />} />
         <Route path="/ventas/contratos" element={<ContratosPage />} />
         <Route path="/ventas/contratos/:contratoId" element={<ContratoDetailPage />} />
-        <Route path="/ventas/taquilla" element={<TaquillaPage />} />
-        <Route path="/ventas/taquilla/tipos" element={<TiposEntradaPage />} />
-        <Route path="/ventas/taquilla/plazas/:plazaId" element={<TaquillaPlazaPage />} />
-        <Route path="/ventas/taquilla/fechas/:fechaId" element={<TaquillaFechaPage />} />
-        <Route path="/ventas/taquilla/pases/:paseId" element={<TaquillaPasePage />} />
-        <Route path="/ventas/bar" element={<BarPage />} />
-        <Route path="/ventas/bar/plazas/:plazaId" element={<BarPlazaPage />} />
-        <Route path="/ventas/bar/fechas/:fechaId" element={<BarFechaPage />} />
-        <Route path="/ventas/bar/pases/:paseId" element={<BarPasePage />} />
-        <Route path="/ventas/bar/pases/:paseId/registrar" element={<BarRegistrarVentaPage />} />
         <Route path="/activos" element={<ActivosPage />} />
         <Route path="/activos/categorias" element={<CategoriasActivoPage />} />
         <Route path="/activos/:activoId" element={<ActivoDetailPage />} />
@@ -104,6 +93,19 @@ function AppRoutes() {
         <Route path="/contabilidad/balance" element={<BalancePage />} />
         <Route path="/plazas-web" element={<PlazasWebPage />} />
         <Route path="/plazas-web/:plazaWebId" element={<PlazaWebDetailPage />} />
+      </Route>
+      <Route element={<ProtectedRoute requiredRole={['ADMIN', 'OPERADOR']} />}>
+        <Route path="/ventas" element={<VentasPage />} />
+        <Route path="/ventas/taquilla" element={<TaquillaPage />} />
+        <Route path="/ventas/taquilla/tipos" element={<TiposEntradaPage />} />
+        <Route path="/ventas/taquilla/plazas/:plazaId" element={<TaquillaPlazaPage />} />
+        <Route path="/ventas/taquilla/fechas/:fechaId" element={<TaquillaFechaPage />} />
+        <Route path="/ventas/taquilla/pases/:paseId" element={<TaquillaPasePage />} />
+        <Route path="/ventas/bar" element={<BarPage />} />
+        <Route path="/ventas/bar/plazas/:plazaId" element={<BarPlazaPage />} />
+        <Route path="/ventas/bar/fechas/:fechaId" element={<BarFechaPage />} />
+        <Route path="/ventas/bar/pases/:paseId" element={<BarPasePage />} />
+        <Route path="/ventas/bar/pases/:paseId/registrar" element={<BarRegistrarVentaPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

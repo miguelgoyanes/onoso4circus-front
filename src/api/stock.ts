@@ -49,6 +49,21 @@ export function listarProductos(token: string): Promise<Producto[]> {
   return apiFetch<Producto[]>('/productos', token);
 }
 
+// Vista reducida (sin coste ni cantidad en stock) para quien solo necesita vender, no gestionar.
+export interface ProductoVenta {
+  id: string;
+  nombre: string;
+  precioVentaPublico: string;
+  aplicaIva: boolean;
+  activo: boolean;
+  imagenUrl: string | null;
+  orden: number;
+}
+
+export function listarProductosVenta(token: string): Promise<ProductoVenta[]> {
+  return apiFetch<ProductoVenta[]>('/productos/venta', token);
+}
+
 export function obtenerProducto(token: string, id: string): Promise<Producto> {
   return apiFetch<Producto>(`/productos/${id}`, token);
 }

@@ -55,6 +55,19 @@ export function listarCuentas(token: string): Promise<CuentaPublica[]> {
   return apiFetch<CuentaPublica[]>('/tesoreria/cuentas', token);
 }
 
+// Vista reducida (sin saldo) para quien solo necesita elegir dónde se cobra una venta.
+export interface CuentaCobro {
+  id: string;
+  nombre: string;
+  tipo: TipoCuentaDinero;
+  usableEnTaquilla: boolean;
+  usableEnBar: boolean;
+}
+
+export function listarCuentasCobro(token: string): Promise<CuentaCobro[]> {
+  return apiFetch<CuentaCobro[]>('/tesoreria/cuentas-cobro', token);
+}
+
 export function obtenerCuenta(token: string, id: string): Promise<CuentaPublica> {
   return apiFetch<CuentaPublica>(`/tesoreria/cuentas/${id}`, token);
 }

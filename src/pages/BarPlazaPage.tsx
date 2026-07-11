@@ -3,7 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { ApiError } from '../api/client';
 import { listarVentasBar, type VentaBar } from '../api/bar';
-import { listarProductos, type Producto } from '../api/stock';
+import { listarProductosVenta, type ProductoVenta } from '../api/stock';
 import { listarFechas, obtenerPlaza, type Fecha, type Plaza } from '../api/plazas';
 import { calcularResumenBar, importePedido } from '../utils/resumenBar';
 import { Breadcrumbs } from '../components/Breadcrumbs';
@@ -20,7 +20,7 @@ export function BarPlazaPage() {
   const { accessToken, logout } = useAuth();
   const [plaza, setPlaza] = useState<Plaza | null>(null);
   const [pedidos, setPedidos] = useState<VentaBar[] | null>(null);
-  const [productos, setProductos] = useState<Producto[]>([]);
+  const [productos, setProductos] = useState<ProductoVenta[]>([]);
   const [fechasConStats, setFechasConStats] = useState<FechaConStats[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +44,7 @@ export function BarPlazaPage() {
           obtenerPlaza(accessToken, plazaId),
           listarFechas(accessToken, plazaId),
           listarVentasBar(accessToken, { plazaId }),
-          listarProductos(accessToken),
+          listarProductosVenta(accessToken),
         ]);
         setPlaza(p);
         setPedidos(pedidosData);

@@ -1,8 +1,13 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../auth/AuthContext';
+import { tieneRol } from '../auth/roles';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import '../styles/crud-page.css';
 
 export function VentasPage() {
+  const { user } = useAuth();
+  const esAdmin = tieneRol(user?.rol ?? '', 'ADMIN');
+
   return (
     <div className="crud-page">
       <div className="crud-container">
@@ -12,19 +17,21 @@ export function VentasPage() {
         </div>
 
         <div className="crud-list">
-          <Link to="/ventas/contratos" className="crud-card crud-card-title-link" style={{ display: 'block' }}>
-            <div className="crud-card-row">
-              <div className="crud-card-info">
-                <div className="crud-card-title">Contratos</div>
-                <div className="crud-card-meta">
-                  <span>Ingresos con ayuntamientos y organizadores, con o sin IVA</span>
+          {esAdmin && (
+            <Link to="/ventas/contratos" className="crud-card crud-card-title-link" style={{ display: 'block' }}>
+              <div className="crud-card-row">
+                <div className="crud-card-info">
+                  <div className="crud-card-title">Contratos</div>
+                  <div className="crud-card-meta">
+                    <span>Ingresos con ayuntamientos y organizadores, con o sin IVA</span>
+                  </div>
                 </div>
+                <span className="crud-card-chevron" aria-hidden="true">
+                  ›
+                </span>
               </div>
-              <span className="crud-card-chevron" aria-hidden="true">
-                ›
-              </span>
-            </div>
-          </Link>
+            </Link>
+          )}
 
           <Link to="/ventas/taquilla" className="crud-card crud-card-title-link" style={{ display: 'block' }}>
             <div className="crud-card-row">

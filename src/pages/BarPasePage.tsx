@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { tieneRol } from '../auth/roles';
 import { ApiError } from '../api/client';
 import {
   actualizarVentaBar,
@@ -11,8 +12,8 @@ import {
   type TipoFiscal,
   type VentaBar,
 } from '../api/bar';
-import { listarProductos, type Producto } from '../api/stock';
-import { listarCuentas, type CuentaPublica } from '../api/tesoreria';
+import { listarProductosVenta, type ProductoVenta } from '../api/stock';
+import { listarCuentasCobro, type CuentaCobro } from '../api/tesoreria';
 import { obtenerFecha, obtenerPase, obtenerPlaza, type Fecha, type Pase, type Plaza } from '../api/plazas';
 import { importePedido } from '../utils/resumenBar';
 import { calcularBaseDesdeTotal } from '../utils/iva';
@@ -28,13 +29,14 @@ interface LineaEditForm {
 export function BarPasePage() {
   const { paseId } = useParams<{ paseId: string }>();
   const navigate = useNavigate();
-  const { accessToken, logout } = useAuth();
+  const { accessToken, logout, user } = useAuth();
+  const esAdmin = tieneRol(user?.rol ?? '', 'ADMIN');
   const [pase, setPase] = useState<Pase | null>(null);
   const [fecha, setFecha] = useState<Fecha | null>(null);
   const [plaza, setPlaza] = useState<Plaza | null>(null);
   const [pedidos, setPedidos] = useState<VentaBar[] | null>(null);
-  const [productos, setProductos] = useState<Producto[]>([]);
-  const [cuentasDeDinero, setCuentasDeDinero] = useState<CuentaPublica[]>([]);
+  const [productos, setProductos] = useState<ProductoVenta[]>([]);
+  const [cuentasDeDinero, setCuentasDeDinero] = useState<CuentaCobro[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const [seleccionados, setSeleccionados] = useState<Set<string>>(new Set());
@@ -73,13 +75,13 @@ export function BarPasePage() {
     try {
       const [p, prods, cuentas, pedidosData] = await Promise.all([
         obtenerPase(accessToken, paseId),
-        listarProductos(accessToken),
-        listarCuentas(accessToken),
+        listarProductosVenta(accessToken),
+        listarCuentasCobro(accessToken),
         listarVentasBar(accessToken, { paseId }),
       ]);
       setPase(p);
       setProductos(prods);
-      setCuentasDeDinero(cuentas.filter((c) => c.activa && c.usableEnBar));
+      setCuentasDeDinero(cuentas.filter((c) => c.usableEnBar));
       setPedidos(pedidosData);
       const f = await obtenerFecha(accessToken, p.fechaId);
       setFecha(f);
@@ -192,7 +194,7 @@ export function BarPasePage() {
 
   const manualLineasConProducto = manualLineas
     .map((l) => ({ ...l, producto: productos.find((p) => p.id === l.productoId) }))
-    .filter((l): l is LineaEditForm & { producto: Producto } => !!l.producto);
+    .filter((l): l is LineaEditForm & { producto: ProductoVenta } => !!l.producto);
   const manualTotal = manualLineasConProducto.reduce(
     (sum, l) => sum + Number(l.cantidad || 0) * Number(l.producto.precioVentaPublico),
     0,
@@ -439,7 +441,7 @@ export function BarPasePage() {
 
         <div className="crud-header-row">
           <h2>Pedidos registrados</h2>
-          {seleccionados.size > 0 && (
+          {esAdmin && seleccionados.size > 0 && (
             <button type="button" className="crud-btn-primary" onClick={() => setShowReclasificar(true)}>
               {seleccionados.size} seleccionados → Reclasificar IVA
             </button>
@@ -454,11 +456,13 @@ export function BarPasePage() {
             return (
               <div key={pedido.id} className="crud-card">
                 <div className="crud-card-row">
-                  <input
-                    type="checkbox"
-                    checked={seleccionados.has(pedido.id)}
-                    onChange={() => toggleSeleccionado(pedido.id)}
-                  />
+                  {esAdmin && (
+                    <input
+                      type="checkbox"
+                      checked={seleccionados.has(pedido.id)}
+                      onChange={() => toggleSeleccionado(pedido.id)}
+                    />
+                  )}
                   <div className="crud-card-info">
                     <div className="crud-card-title">{resumenLineas(pedido)}</div>
                   </div>

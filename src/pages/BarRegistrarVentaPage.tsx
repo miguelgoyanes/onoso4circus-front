@@ -3,8 +3,8 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { ApiError } from '../api/client';
 import { crearVentaBar } from '../api/bar';
-import { listarProductos, type Producto } from '../api/stock';
-import { listarCuentas, type CuentaPublica } from '../api/tesoreria';
+import { listarProductosVenta, type ProductoVenta } from '../api/stock';
+import { listarCuentasCobro, type CuentaCobro } from '../api/tesoreria';
 import { obtenerFecha, obtenerPase, obtenerPlaza, type Fecha, type Pase, type Plaza } from '../api/plazas';
 import { urlImagen } from '../components/ImagenPicker';
 import { Breadcrumbs } from '../components/Breadcrumbs';
@@ -16,8 +16,8 @@ export function BarRegistrarVentaPage() {
   const [pase, setPase] = useState<Pase | null>(null);
   const [fecha, setFecha] = useState<Fecha | null>(null);
   const [plaza, setPlaza] = useState<Plaza | null>(null);
-  const [productos, setProductos] = useState<Producto[]>([]);
-  const [cuentasDeDinero, setCuentasDeDinero] = useState<CuentaPublica[]>([]);
+  const [productos, setProductos] = useState<ProductoVenta[]>([]);
+  const [cuentasDeDinero, setCuentasDeDinero] = useState<CuentaCobro[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const [paso, setPaso] = useState<'productos' | 'cuenta'>('productos');
@@ -43,12 +43,12 @@ export function BarRegistrarVentaPage() {
       try {
         const [p, prods, cuentas] = await Promise.all([
           obtenerPase(accessToken, paseId),
-          listarProductos(accessToken),
-          listarCuentas(accessToken),
+          listarProductosVenta(accessToken),
+          listarCuentasCobro(accessToken),
         ]);
         setPase(p);
         setProductos(prods);
-        setCuentasDeDinero(cuentas.filter((c) => c.activa && c.usableEnBar));
+        setCuentasDeDinero(cuentas.filter((c) => c.usableEnBar));
         const f = await obtenerFecha(accessToken, p.fechaId);
         setFecha(f);
         setPlaza(await obtenerPlaza(accessToken, f.plazaId));
@@ -84,7 +84,7 @@ export function BarRegistrarVentaPage() {
 
   const lineasCarrito = Object.entries(carrito)
     .map(([productoId, cantidad]) => ({ producto: productos.find((p) => p.id === productoId), productoId, cantidad }))
-    .filter((l): l is { producto: Producto; productoId: string; cantidad: number } => !!l.producto);
+    .filter((l): l is { producto: ProductoVenta; productoId: string; cantidad: number } => !!l.producto);
 
   const total = lineasCarrito.reduce((sum, l) => sum + l.cantidad * Number(l.producto.precioVentaPublico), 0);
 

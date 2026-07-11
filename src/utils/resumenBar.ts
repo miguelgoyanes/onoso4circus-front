@@ -1,5 +1,9 @@
 import type { VentaBar } from '../api/bar';
-import type { Producto } from '../api/stock';
+
+interface ProductoNombrado {
+  id: string;
+  nombre: string;
+}
 
 export interface DesgloseProducto {
   productoId: string;
@@ -18,7 +22,7 @@ export function importePedido(pedido: VentaBar): number {
   return Number(pedido.importeTotal);
 }
 
-export function calcularResumenBar(pedidos: VentaBar[], productos: Producto[]): ResumenBar {
+export function calcularResumenBar(pedidos: VentaBar[], productos: ProductoNombrado[]): ResumenBar {
   const porProducto = new Map<string, { cantidad: number; importe: number }>();
   let cantidadTotal = 0;
   for (const pedido of pedidos) {

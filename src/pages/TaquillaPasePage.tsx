@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
+import { tieneRol } from '../auth/roles';
 import { ApiError } from '../api/client';
 import {
   actualizarVentaEntradas,
@@ -15,7 +16,7 @@ import {
   type TipoFiscal,
   type VentaEntradas,
 } from '../api/taquilla';
-import { listarCuentas, type CuentaPublica } from '../api/tesoreria';
+import { listarCuentasCobro, type CuentaCobro } from '../api/tesoreria';
 import { obtenerFecha, obtenerPase, obtenerPlaza, type Fecha, type Pase, type Plaza } from '../api/plazas';
 import { calcularBaseDesdeTotal } from '../utils/iva';
 import { importeVenta } from '../utils/resumenVentas';
@@ -61,7 +62,7 @@ function LineaCampos({
   linea: LineaForm;
   onChange: (cambios: Partial<LineaForm>) => void;
   tiposEntrada: TipoEntrada[];
-  cuentas: CuentaPublica[];
+  cuentas: CuentaCobro[];
 }) {
   const tipoEntrada = tiposEntrada.find((t) => t.id === linea.tipoEntradaId);
   const cantidad = Number(linea.cantidad) || 0;
@@ -158,13 +159,14 @@ function LineaCampos({
 
 export function TaquillaPasePage() {
   const { paseId } = useParams<{ paseId: string }>();
-  const { accessToken, logout } = useAuth();
+  const { accessToken, logout, user } = useAuth();
+  const esAdmin = tieneRol(user?.rol ?? '', 'ADMIN');
   const [pase, setPase] = useState<Pase | null>(null);
   const [fecha, setFecha] = useState<Fecha | null>(null);
   const [plaza, setPlaza] = useState<Plaza | null>(null);
   const [ventas, setVentas] = useState<VentaEntradas[] | null>(null);
   const [tiposEntrada, setTiposEntrada] = useState<TipoEntrada[]>([]);
-  const [cuentasDeDinero, setCuentasDeDinero] = useState<CuentaPublica[]>([]);
+  const [cuentasDeDinero, setCuentasDeDinero] = useState<CuentaCobro[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const [showRegistrar, setShowRegistrar] = useState(false);
@@ -197,12 +199,12 @@ export function TaquillaPasePage() {
       const [p, tipos, cuentas, ventasData] = await Promise.all([
         obtenerPase(accessToken, paseId),
         listarTiposEntrada(accessToken),
-        listarCuentas(accessToken),
+        listarCuentasCobro(accessToken),
         listarVentasEntradas(accessToken, { paseId }),
       ]);
       setPase(p);
       setTiposEntrada(tipos);
-      setCuentasDeDinero(cuentas.filter((c) => c.activa && c.usableEnTaquilla));
+      setCuentasDeDinero(cuentas.filter((c) => c.usableEnTaquilla));
       setVentas(ventasData);
       const f = await obtenerFecha(accessToken, p.fechaId);
       setFecha(f);
@@ -448,7 +450,7 @@ export function TaquillaPasePage() {
 
         <div className="crud-header-row">
           <h2>Ventas registradas</h2>
-          {seleccionadas.size > 0 && (
+          {esAdmin && seleccionadas.size > 0 && (
             <button type="button" className="crud-btn-primary" onClick={() => setShowReclasificar(true)}>
               {seleccionadas.size} seleccionadas → Reclasificar IVA
             </button>
@@ -464,11 +466,13 @@ export function TaquillaPasePage() {
             return (
               <div key={venta.id} className="crud-card">
                 <div className="crud-card-row">
-                  <input
-                    type="checkbox"
-                    checked={seleccionadas.has(venta.id)}
-                    onChange={() => toggleSeleccionada(venta.id)}
-                  />
+                  {esAdmin && (
+                    <input
+                      type="checkbox"
+                      checked={seleccionadas.has(venta.id)}
+                      onChange={() => toggleSeleccionada(venta.id)}
+                    />
+                  )}
                   <div className="crud-card-info">
                     <div className="crud-card-title">
                       {tipo?.nombre ?? venta.tipoEntradaId} × {venta.cantidad}
