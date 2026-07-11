@@ -678,6 +678,85 @@
   font-weight: 700;
 }
 
+/* Venta rápida de Taquilla: mismo grid táctil que Bar (.bar-producto-grid), pero sin
+   foto — cada tipo de entrada es un tile con SU color de fondo (no una foto), y el
+   nombre + precio centrados encima, en vez de debajo de una miniatura. */
+.tipo-entrada-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 100px;
+  padding: var(--space-3) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.1s ease,
+    transform 0.05s ease;
+}
+
+.tipo-entrada-tile:hover {
+  border-color: var(--color-accent);
+}
+
+.tipo-entrada-tile:active {
+  transform: scale(0.96);
+}
+
+.tipo-entrada-tile-nombre {
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+.tipo-entrada-tile-precio {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* Vista previa en el formulario de Tipos de entrada: mismo tile, pero no es un
+   botón interactivo — sin cursor de mano ni efecto al pulsar. */
+.tipo-entrada-tile-preview {
+  cursor: default;
+  width: 140px;
+  margin-top: var(--space-2);
+}
+
+.tipo-entrada-tile-preview:hover {
+  border-color: var(--color-border);
+}
+
+/* Selector de color nativo, recortado a un swatch cuadrado en vez del rectángulo
+   grande por defecto del navegador. */
+.crud-color-input {
+  padding: 2px;
+  width: 48px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: transparent;
+  cursor: pointer;
+}
+
+.crud-color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.crud-color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius) - 4px);
+}
+
+.crud-color-input::-moz-color-swatch {
+  border: none;
+  border-radius: calc(var(--radius) - 4px);
+}
+
 .bar-carrito-linea {
   display: flex;
   align-items: center;

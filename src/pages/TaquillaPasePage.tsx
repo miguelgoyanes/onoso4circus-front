@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { tieneRol } from '../auth/roles';
 import { ApiError } from '../api/client';
@@ -159,6 +159,7 @@ function LineaCampos({
 
 export function TaquillaPasePage() {
   const { paseId } = useParams<{ paseId: string }>();
+  const navigate = useNavigate();
   const { accessToken, logout, user } = useAuth();
   const esAdmin = tieneRol(user?.rol ?? '', 'ADMIN');
   const [pase, setPase] = useState<Pase | null>(null);
@@ -224,7 +225,7 @@ export function TaquillaPasePage() {
     return cuentasDeDinero[0]?.id ?? '';
   }
 
-  function abrirRegistrar() {
+  function abrirRegistrarManual() {
     const tipoActivo = tiposEntrada.find((t) => t.activo);
     setLineas([lineaVacia(tipoActivo?.id ?? '', cuentaPorDefecto())]);
     setShowRegistrar(true);
@@ -343,15 +344,24 @@ export function TaquillaPasePage() {
           />
           <div className="crud-header-row">
             <h1>{pase ? `${pase.hora} ${pase.nombre ?? ''}`.trim() : 'Pase'}</h1>
-            <button type="button" className="crud-btn-primary" onClick={abrirRegistrar} disabled={tiposEntrada.length === 0}>
-              Registrar ventas
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button type="button" className="crud-link-btn" onClick={abrirRegistrarManual}>
+                Registro manual
+              </button>
+              <button
+                type="button"
+                className="crud-btn-primary"
+                onClick={() => navigate(`/ventas/taquilla/pases/${paseId}/registrar`)}
+              >
+                Registrar venta
+              </button>
+            </div>
           </div>
         </div>
 
         {error && <p className="crud-error">{error}</p>}
 
-        <Modal open={showRegistrar} onClose={() => setShowRegistrar(false)} title="Registrar ventas de este pase">
+        <Modal open={showRegistrar} onClose={() => setShowRegistrar(false)} title="Registro manual">
           <form className="crud-form" onSubmit={handleRegistrar}>
             {lineas.map((linea, i) => (
               <div

@@ -26,6 +26,7 @@ import { TaquillaPlazaPage } from './pages/TaquillaPlazaPage';
 import { TaquillaFechaPage } from './pages/TaquillaFechaPage';
 import { TaquillaPasePage } from './pages/TaquillaPasePage';
 import { TiposEntradaPage } from './pages/TiposEntradaPage';
+import { TaquillaRegistrarVentaPage } from './pages/TaquillaRegistrarVentaPage';
 import { BarPage } from './pages/BarPage';
 import { BarPlazaPage } from './pages/BarPlazaPage';
 import { BarFechaPage } from './pages/BarFechaPage';
@@ -101,6 +102,7 @@ function AppRoutes() {
         <Route path="/ventas/taquilla/plazas/:plazaId" element={<TaquillaPlazaPage />} />
         <Route path="/ventas/taquilla/fechas/:fechaId" element={<TaquillaFechaPage />} />
         <Route path="/ventas/taquilla/pases/:paseId" element={<TaquillaPasePage />} />
+        <Route path="/ventas/taquilla/pases/:paseId/registrar" element={<TaquillaRegistrarVentaPage />} />
         <Route path="/ventas/bar" element={<BarPage />} />
         <Route path="/ventas/bar/plazas/:plazaId" element={<BarPlazaPage />} />
         <Route path="/ventas/bar/fechas/:fechaId" element={<BarFechaPage />} />

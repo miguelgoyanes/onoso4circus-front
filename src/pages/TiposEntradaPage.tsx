@@ -10,10 +10,12 @@ import {
   listarTiposEntrada,
   moverTipoEntrada,
   type DireccionOrden,
+  type ModalidadTipoEntrada,
   type TipoEntrada,
 } from '../api/taquilla';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { Modal } from '../components/Modal';
+import { COLOR_POR_DEFECTO, colorTextoLegible } from '../utils/color';
 import '../styles/crud-page.css';
 
 export function TiposEntradaPage() {
@@ -21,18 +23,14 @@ export function TiposEntradaPage() {
   const [tipos, setTipos] = useState<TipoEntrada[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const [showForm, setShowForm] = useState(false);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [editandoId, setEditandoId] = useState<string | null>(null);
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
   const [aplicaIva, setAplicaIva] = useState(false);
-  const [color, setColor] = useState('');
+  const [color, setColor] = useState(COLOR_POR_DEFECTO);
+  const [modalidad, setModalidad] = useState<ModalidadTipoEntrada>('PRESENCIAL');
   const [guardando, setGuardando] = useState(false);
-
-  const [editandoId, setEditandoId] = useState<string | null>(null);
-  const [editNombre, setEditNombre] = useState('');
-  const [editPrecio, setEditPrecio] = useState('');
-  const [editAplicaIva, setEditAplicaIva] = useState(false);
-  const [editColor, setEditColor] = useState('');
 
   function handleApiError(err: unknown): void {
     if (err instanceof ApiError) {
@@ -60,49 +58,44 @@ export function TiposEntradaPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken]);
 
-  async function handleCrear(event: FormEvent) {
+  function abrirCrear() {
+    setEditandoId(null);
+    setNombre('');
+    setPrecio('');
+    setAplicaIva(false);
+    setColor(COLOR_POR_DEFECTO);
+    setModalidad('PRESENCIAL');
+    setModalAbierto(true);
+  }
+
+  function abrirEdicion(tipo: TipoEntrada) {
+    setEditandoId(tipo.id);
+    setNombre(tipo.nombre);
+    setPrecio(tipo.precio);
+    setAplicaIva(tipo.aplicaIva);
+    setColor(tipo.color ?? COLOR_POR_DEFECTO);
+    setModalidad(tipo.modalidad);
+    setModalAbierto(true);
+  }
+
+  async function handleGuardar(event: FormEvent) {
     event.preventDefault();
     if (!accessToken) return;
     setError(null);
     setGuardando(true);
     try {
-      await crearTipoEntrada(accessToken, { nombre, precio: Number(precio), aplicaIva, color: color || undefined });
-      setNombre('');
-      setPrecio('');
-      setAplicaIva(false);
-      setColor('');
-      setShowForm(false);
+      const datos = { nombre, precio: Number(precio), aplicaIva, color, modalidad };
+      if (editandoId) {
+        await actualizarTipoEntrada(accessToken, editandoId, datos);
+      } else {
+        await crearTipoEntrada(accessToken, datos);
+      }
+      setModalAbierto(false);
       await cargar();
     } catch (err) {
       handleApiError(err);
     } finally {
       setGuardando(false);
-    }
-  }
-
-  function empezarEdicion(tipo: TipoEntrada) {
-    setEditandoId(tipo.id);
-    setEditNombre(tipo.nombre);
-    setEditPrecio(tipo.precio);
-    setEditAplicaIva(tipo.aplicaIva);
-    setEditColor(tipo.color ?? '');
-  }
-
-  async function handleActualizar(event: FormEvent, id: string) {
-    event.preventDefault();
-    if (!accessToken) return;
-    setError(null);
-    try {
-      await actualizarTipoEntrada(accessToken, id, {
-        nombre: editNombre,
-        precio: Number(editPrecio),
-        aplicaIva: editAplicaIva,
-        color: editColor || undefined,
-      });
-      setEditandoId(null);
-      await cargar();
-    } catch (err) {
-      handleApiError(err);
     }
   }
 
@@ -156,13 +149,17 @@ export function TiposEntradaPage() {
         {error && <p className="crud-error">{error}</p>}
 
         <div className="crud-toolbar">
-          <button type="button" className="crud-btn-primary" onClick={() => setShowForm(true)}>
+          <button type="button" className="crud-btn-primary" onClick={abrirCrear}>
             Crear tipo de entrada
           </button>
         </div>
 
-        <Modal open={showForm} onClose={() => setShowForm(false)} title="Crear tipo de entrada">
-          <form className="crud-form" onSubmit={handleCrear}>
+        <Modal
+          open={modalAbierto}
+          onClose={() => setModalAbierto(false)}
+          title={editandoId ? 'Editar tipo de entrada' : 'Crear tipo de entrada'}
+        >
+          <form className="crud-form" onSubmit={handleGuardar}>
             <div className="crud-form-row">
               <label className="crud-field">
                 <span>Nombre</span>
@@ -182,20 +179,44 @@ export function TiposEntradaPage() {
             </div>
             <div className="crud-form-row">
               <label className="crud-field">
-                <span>Color (opcional)</span>
-                <input value={color} onChange={(e) => setColor(e.target.value)} placeholder="ej. #ff6a00" />
+                <span>Color</span>
+                <input
+                  type="color"
+                  className="crud-color-input"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                />
+              </label>
+              <label className="crud-field">
+                <span>Modalidad</span>
+                <select value={modalidad} onChange={(e) => setModalidad(e.target.value as ModalidadTipoEntrada)}>
+                  <option value="PRESENCIAL">Presencial</option>
+                  <option value="ONLINE">Online</option>
+                </select>
               </label>
             </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <input type="checkbox" checked={aplicaIva} onChange={(e) => setAplicaIva(e.target.checked)} />
               <span>Admite IVA repercutido</span>
             </label>
+
+            <div className="crud-field">
+              <span>Vista previa</span>
+              <div
+                className="tipo-entrada-tile tipo-entrada-tile-preview"
+                style={{ background: color, color: colorTextoLegible(color) }}
+              >
+                <span className="tipo-entrada-tile-nombre">{nombre || 'Nombre'}</span>
+                <span className="tipo-entrada-tile-precio">{precio ? `${precio} €` : '0 €'}</span>
+              </div>
+            </div>
+
             <div className="crud-form-actions">
-              <button type="button" className="crud-form-cancel" onClick={() => setShowForm(false)}>
+              <button type="button" className="crud-form-cancel" onClick={() => setModalAbierto(false)}>
                 Cancelar
               </button>
               <button type="submit" className="crud-btn-primary" disabled={guardando}>
-                {guardando ? 'Creando…' : 'Guardar'}
+                {guardando ? 'Guardando…' : 'Guardar'}
               </button>
             </div>
           </form>
@@ -206,86 +227,51 @@ export function TiposEntradaPage() {
           {tipos?.length === 0 && <p className="crud-empty">No hay tipos de entrada todavía.</p>}
           {tipos?.map((tipo, indice) => (
             <div key={tipo.id} className="crud-card" style={tipo.activo ? undefined : { opacity: 0.6 }}>
-              {editandoId === tipo.id ? (
-                <form className="crud-form-row" onSubmit={(e) => handleActualizar(e, tipo.id)}>
-                  <label className="crud-field">
-                    <span>Nombre</span>
-                    <input value={editNombre} onChange={(e) => setEditNombre(e.target.value)} required />
-                  </label>
-                  <label className="crud-field">
-                    <span>Precio (€)</span>
-                    <input
-                      type="number"
-                      min="0.01"
-                      step="0.01"
-                      value={editPrecio}
-                      onChange={(e) => setEditPrecio(e.target.value)}
-                      required
-                    />
-                  </label>
-                  <label className="crud-field">
-                    <span>Color</span>
-                    <input value={editColor} onChange={(e) => setEditColor(e.target.value)} />
-                  </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <input type="checkbox" checked={editAplicaIva} onChange={(e) => setEditAplicaIva(e.target.checked)} />
-                    <span>Admite IVA</span>
-                  </label>
-                  <div className="crud-form-actions">
-                    <button type="button" className="crud-form-cancel" onClick={() => setEditandoId(null)}>
-                      Cancelar
-                    </button>
-                    <button type="submit" className="crud-btn-primary">
-                      Guardar
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div className="crud-card-row">
-                  <div className="crud-card-orden">
-                    <button
-                      type="button"
-                      className="crud-card-orden-btn"
-                      disabled={indice === 0}
-                      onClick={() => handleMover(tipo.id, 'ARRIBA')}
-                      aria-label="Subir"
-                    >
-                      ↑
-                    </button>
-                    <button
-                      type="button"
-                      className="crud-card-orden-btn"
-                      disabled={indice === tipos.length - 1}
-                      onClick={() => handleMover(tipo.id, 'ABAJO')}
-                      aria-label="Bajar"
-                    >
-                      ↓
-                    </button>
-                  </div>
-                  <div className="crud-card-info">
-                    <div className="crud-card-title">{tipo.nombre}</div>
-                    <div className="crud-card-meta">
-                      <span className="badge">{tipo.precio} €</span>
-                      {tipo.aplicaIva && <span className="badge badge-muted">IVA</span>}
-                      {!tipo.activo && <span className="badge badge-muted">INACTIVO</span>}
-                      {tipo.usado && <span className="badge badge-muted">EN USO</span>}
-                    </div>
-                  </div>
-                  <div className="crud-card-actions">
-                    <button type="button" className="crud-link-btn" onClick={() => empezarEdicion(tipo)}>
-                      Editar
-                    </button>
-                    <button type="button" className="crud-link-btn" onClick={() => handleActivar(tipo)}>
-                      {tipo.activo ? 'Desactivar' : 'Activar'}
-                    </button>
-                    {!tipo.usado && (
-                      <button type="button" className="crud-delete-btn" onClick={() => handleEliminar(tipo.id)}>
-                        Eliminar
-                      </button>
-                    )}
+              <div className="crud-card-row">
+                <div className="crud-card-orden">
+                  <button
+                    type="button"
+                    className="crud-card-orden-btn"
+                    disabled={indice === 0}
+                    onClick={() => handleMover(tipo.id, 'ARRIBA')}
+                    aria-label="Subir"
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    className="crud-card-orden-btn"
+                    disabled={indice === tipos.length - 1}
+                    onClick={() => handleMover(tipo.id, 'ABAJO')}
+                    aria-label="Bajar"
+                  >
+                    ↓
+                  </button>
+                </div>
+                <div className="crud-card-info">
+                  <div className="crud-card-title">{tipo.nombre}</div>
+                  <div className="crud-card-meta">
+                    <span className="badge">{tipo.precio} €</span>
+                    <span className="badge badge-muted">{tipo.modalidad === 'PRESENCIAL' ? 'Presencial' : 'Online'}</span>
+                    {tipo.aplicaIva && <span className="badge badge-muted">IVA</span>}
+                    {!tipo.activo && <span className="badge badge-muted">INACTIVO</span>}
+                    {tipo.usado && <span className="badge badge-muted">EN USO</span>}
                   </div>
                 </div>
-              )}
+                <div className="crud-card-actions">
+                  <button type="button" className="crud-link-btn" onClick={() => abrirEdicion(tipo)}>
+                    Editar
+                  </button>
+                  <button type="button" className="crud-link-btn" onClick={() => handleActivar(tipo)}>
+                    {tipo.activo ? 'Desactivar' : 'Activar'}
+                  </button>
+                  {!tipo.usado && (
+                    <button type="button" className="crud-delete-btn" onClick={() => handleEliminar(tipo.id)}>
+                      Eliminar
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
           ))}
         </div>

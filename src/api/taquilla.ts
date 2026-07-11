@@ -3,6 +3,7 @@ import { apiFetch } from './client';
 export type OrigenVenta = 'FISICA' | 'ONLINE_MANUAL';
 export type TipoFiscal = 'A' | 'B';
 export type DireccionOrden = 'ARRIBA' | 'ABAJO';
+export type ModalidadTipoEntrada = 'PRESENCIAL' | 'ONLINE';
 
 export interface TipoEntrada {
   id: string;
@@ -10,6 +11,7 @@ export interface TipoEntrada {
   precio: string;
   aplicaIva: boolean;
   color: string | null;
+  modalidad: ModalidadTipoEntrada;
   orden: number;
   activo: boolean;
   usado: boolean;
@@ -20,6 +22,7 @@ export interface DatosTipoEntrada {
   precio: number;
   aplicaIva: boolean;
   color?: string;
+  modalidad: ModalidadTipoEntrada;
 }
 
 export interface VentaEntradas {
