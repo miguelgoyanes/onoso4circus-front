@@ -48,6 +48,9 @@ import { PygPage } from './pages/PygPage';
 import { BalancePage } from './pages/BalancePage';
 import { PlazasWebPage } from './pages/PlazasWebPage';
 import { PlazaWebDetailPage } from './pages/PlazaWebDetailPage';
+import { BodaInvitadoPage } from './pages/BodaInvitadoPage';
+import { BodaPage } from './pages/BodaPage';
+import { BodaPreguntasPage } from './pages/BodaPreguntasPage';
 
 function LoginRoute() {
   const { accessToken, login } = useAuth();
@@ -94,6 +97,9 @@ function AppRoutes() {
         <Route path="/contabilidad/balance" element={<BalancePage />} />
         <Route path="/plazas-web" element={<PlazasWebPage />} />
         <Route path="/plazas-web/:plazaWebId" element={<PlazaWebDetailPage />} />
+        <Route path="/boda" element={<BodaPage />} />
+        <Route path="/boda/invitados/:id" element={<BodaInvitadoPage />} />
+        <Route path="/boda/preguntas" element={<BodaPreguntasPage />} />
       </Route>
       <Route element={<ProtectedRoute requiredRole={['ADMIN', 'OPERADOR']} />}>
         <Route path="/ventas" element={<VentasPage />} />

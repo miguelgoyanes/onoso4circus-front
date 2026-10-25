@@ -1,0 +1,766 @@
+/* Back office de la boda: minimalista, todo cuelga de .boda para no afectar al resto de la app. */
+.boda {
+  --estado: var(--color-text-muted);
+}
+.boda-estado-sin-enviar {
+  --estado: #8a9099;
+}
+.boda-estado-enviada {
+  --estado: #d9a400;
+}
+.boda-estado-abierta {
+  --estado: #e8741a;
+}
+.boda-estado-si {
+  --estado: #2e9e5b;
+}
+.boda-estado-no {
+  --estado: #d64545;
+}
+
+.boda .crud-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-width: 52rem;
+}
+
+.boda-sub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+/* Cabecera */
+.boda-cab {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem 1rem;
+}
+
+.boda-cab h1 {
+  margin: 0 0 0.2rem;
+  font-size: 1.6rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.boda-cab-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+/* Botones */
+.boda-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  color: var(--color-text);
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.boda-btn:hover:not(:disabled) {
+  background: var(--color-bg-elevated);
+}
+
+.boda-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.boda-btn-primario {
+  color: var(--color-accent-contrast);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+.boda-btn-primario:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.boda-btn-suave {
+  background: var(--color-bg-elevated);
+}
+
+.boda-btn-icono {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  font-size: 1.1rem;
+  border-color: transparent;
+}
+
+.boda-btn-peligro {
+  color: var(--color-danger);
+}
+
+.boda-input {
+  padding: 0.45rem 0.8rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: transparent;
+}
+
+.boda-input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+}
+
+/* Resumen */
+.boda-resumen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-bg-elevated);
+}
+
+.boda-resumen-titulo {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.boda-resumen-titulo strong {
+  font-size: 1.6rem;
+  font-weight: 650;
+}
+
+.boda-barra {
+  display: flex;
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--color-border);
+}
+
+.boda-barra > span {
+  min-width: 0;
+  background: var(--estado);
+  transition: flex-grow 0.3s;
+}
+
+.boda-leyenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.boda-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.boda-filtro strong {
+  color: var(--color-text);
+}
+
+.boda-filtro:hover,
+.boda-filtro.activo {
+  border-color: var(--estado);
+}
+
+.boda-filtro.activo {
+  color: var(--color-text);
+}
+
+.boda-punto {
+  flex: none;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--estado);
+}
+
+/* Herramientas */
+.boda-barra-herramientas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.boda-barra-herramientas input[type='search'] {
+  flex: 1 1 12rem;
+}
+
+.boda-segmentado {
+  display: inline-flex;
+  padding: 0.15rem;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+}
+
+.boda-segmentado button {
+  padding: 0.3rem 0.85rem;
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+}
+
+.boda-segmentado button.activo {
+  color: var(--color-text);
+  background: var(--color-bg-elevated);
+}
+
+.boda-vacio {
+  margin: 1.5rem 0;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+/* Lista */
+.boda-grupo h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0.25rem 0 0.1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.boda-grupo h2 span {
+  font-weight: 400;
+}
+
+.boda-fila {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.5rem;
+  cursor: pointer;
+  border-bottom: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+}
+
+.boda-fila:hover {
+  background: var(--color-bg-elevated);
+}
+
+.boda-fila-texto {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.boda-nombre {
+  font-weight: 550;
+}
+
+.boda-fila-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.3rem;
+}
+
+.boda-menu {
+  position: relative;
+}
+
+.boda-menu-fondo {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+}
+
+.boda-menu-lista {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  min-width: 10rem;
+  padding: 0.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.boda-menu-lista button {
+  padding: 0.5rem 0.7rem;
+  font: inherit;
+  font-size: 0.88rem;
+  text-align: left;
+  color: var(--color-text);
+  cursor: pointer;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+}
+
+.boda-menu-lista button:hover {
+  background: var(--color-bg-elevated);
+}
+
+/* Tablero */
+.boda-tablero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem;
+  align-items: start;
+}
+
+.boda-columna {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  border-radius: 1rem;
+  background: var(--color-bg-elevated);
+}
+
+.boda-columna h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.boda-contador {
+  margin-left: auto;
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+
+.boda-ficha {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.7rem;
+  cursor: pointer;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+  background: var(--color-bg);
+}
+
+.boda-ficha:hover {
+  border-color: var(--estado);
+}
+
+.boda-ficha-acciones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.2rem;
+}
+
+.boda-ficha-acciones button,
+.boda-ficha-acciones a {
+  padding: 0;
+  font: inherit;
+  font-size: 0.8rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  cursor: pointer;
+  border: 0;
+  background: none;
+}
+
+/* Pruebas */
+.boda-pruebas {
+  margin-top: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.boda-pruebas summary {
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.boda-pruebas-crear {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.7rem 0;
+}
+
+.boda-fila-prueba .boda-punto {
+  background: var(--estado);
+}
+
+/* Aviso */
+.boda-aviso {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  z-index: 50;
+  padding: 0.55rem 1rem;
+  font-size: 0.88rem;
+  color: var(--color-bg);
+  border-radius: 999px;
+  background: var(--color-text);
+  transform: translateX(-50%);
+}
+
+@media (max-width: 560px) {
+  .boda-fila {
+    flex-wrap: wrap;
+  }
+  .boda-fila-acciones {
+    flex-basis: 100%;
+    justify-content: flex-start;
+    padding-left: 1.4rem;
+  }
+}
+
+/* Pastilla de estado */
+.boda-pastilla {
+  display: inline-block;
+  flex: none;
+  padding: 0.12rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--estado);
+  white-space: nowrap;
+  border: 1px solid var(--estado);
+  border-radius: 999px;
+}
+
+.boda-cab-linea {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.boda-menu-lista button.peligro {
+  color: var(--color-danger);
+}
+
+/* Página de invitado */
+.boda-seccion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.boda-seccion > h2 {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.boda-datos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: 0.75rem 1rem;
+  margin: 0;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.boda-datos > div,
+.boda-datos > label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  margin: 0;
+}
+
+.boda-datos dt,
+.boda-datos label > span {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.boda-datos dd {
+  margin: 0;
+}
+
+.boda-datos-ancho {
+  grid-column: 1 / -1;
+}
+
+.boda-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem !important;
+}
+
+.boda-input-area {
+  border-radius: 1rem;
+  resize: vertical;
+}
+
+.boda-respuestas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+  gap: 0.75rem;
+}
+
+.boda-respuesta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1rem 1.1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-bg-elevated);
+}
+
+.boda-respuesta h3 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.35;
+  color: var(--color-text-muted);
+}
+
+.boda-respuesta .boda-input {
+  width: 100%;
+}
+
+.boda-sin-respuesta {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.boda-valor-texto {
+  font-size: 1.05rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.boda-valor-si-no {
+  padding: 0.15rem 0.9rem;
+  font-size: 1.1rem;
+  font-weight: 650;
+  border-radius: 999px;
+}
+
+.boda-valor-si-no.si {
+  color: #2e9e5b;
+  background: rgba(46, 158, 91, 0.14);
+}
+
+.boda-valor-si-no.no {
+  color: #d64545;
+  background: rgba(214, 69, 69, 0.14);
+}
+
+.boda-nota {
+  margin: 0;
+  font-size: 0.9rem;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
+.boda-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.boda-etiqueta {
+  padding: 0.2rem 0.7rem;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-bg);
+}
+
+.boda-etiqueta-boton {
+  cursor: pointer;
+  color: var(--color-text-muted);
+}
+
+.boda-etiqueta-boton.activa {
+  color: var(--color-accent-contrast);
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+}
+
+/* Actividad: línea de tiempo por sesiones */
+.boda-linea {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  margin: 0;
+  padding: 0 0 0 1.4rem;
+  list-style: none;
+}
+
+.boda-linea::before {
+  content: '';
+  position: absolute;
+  top: 0.4rem;
+  bottom: 0.4rem;
+  left: 0.3rem;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.boda-hito {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.boda-hito-punto {
+  position: absolute;
+  top: 0.35rem;
+  left: -1.4rem;
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  background: var(--color-bg);
+  border: 2px solid var(--color-text-muted);
+}
+
+.boda-hito-sesion .boda-hito-punto {
+  border-color: var(--color-accent);
+}
+
+.boda-hito-admin .boda-hito-punto {
+  border-color: #6c8cff;
+  background: #6c8cff;
+}
+
+.boda-hito-titulo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.2rem 0.6rem;
+  margin: 0;
+}
+
+.boda-diff {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-size: 0.88rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0.75rem;
+}
+
+.boda-diff-pregunta {
+  padding: 0.35rem 0.8rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+}
+
+.boda-diff-linea {
+  padding: 0.3rem 0.8rem 0.3rem 1.6rem;
+  position: relative;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.boda-diff-linea::before {
+  position: absolute;
+  left: 0.7rem;
+  font-weight: 700;
+}
+
+.boda-diff-linea.quitado {
+  color: #e5484d;
+  background: rgba(229, 72, 77, 0.12);
+}
+
+.boda-diff-linea.quitado::before {
+  content: '−';
+}
+
+.boda-diff-linea.anadido {
+  color: #30a46c;
+  background: rgba(48, 164, 108, 0.12);
+}
+
+.boda-diff-linea.anadido::before {
+  content: '+';
+}
+
+.boda-respuesta .boda-segmentado button.activo {
+  color: var(--color-accent-contrast);
+  background: var(--color-accent);
+}
+
+.boda-menu-lista button {
+  white-space: nowrap;
+}
+
+/* Personas de una invitación */
+.boda-personas-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.boda-persona-fila {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.boda-persona-fila .boda-input {
+  flex: 1;
+}
+
+.boda-datos-etiqueta {
+  display: block;
+  margin-bottom: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.boda-persona-bloque {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.boda-persona-titulo {
+  margin: 0.6rem 0 0;
+  font-size: 0.95rem;
+}

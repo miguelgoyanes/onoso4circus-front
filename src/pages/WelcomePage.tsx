@@ -4,6 +4,7 @@ import {
   Boxes,
   Calculator,
   Globe,
+  Heart,
   Landmark,
   MapPin,
   Package,
@@ -35,6 +36,7 @@ const MODULOS: Modulo[] = [
   { to: '/analisis', label: 'Análisis', icon: BarChart3, color: '#84cc16' },
   { to: '/plazas-web', label: 'Web pública', icon: Globe, color: '#6366f1' },
   { to: '/contabilidad', label: 'Contabilidad', icon: Calculator, color: '#14b8a6' },
+  { to: '/boda', label: 'Boda', icon: Heart, color: '#ec4899' },
   { to: '/usuarios', label: 'Usuarios', icon: UserCog, color: '#64748b' },
 ];
 

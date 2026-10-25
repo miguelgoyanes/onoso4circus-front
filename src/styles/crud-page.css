@@ -201,8 +201,14 @@
   color: var(--color-text-muted);
 }
 
+/* Un campo suelto dentro de un formulario en columna no debe estirarse (flex-basis de 200px sería de alto). */
+.crud-form > .crud-field {
+  flex: 0 0 auto;
+}
+
 .crud-field input,
-.crud-field select {
+.crud-field select,
+.crud-field textarea {
   font: inherit;
   color: var(--color-text);
   background: var(--color-bg);
@@ -273,6 +279,11 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+}
+
+/* Info directamente dentro de la tarjeta en columna (sin .crud-card-row): que no se estire a 200px de alto. */
+.crud-card > .crud-card-info {
+  flex: 0 0 auto;
 }
 
 .crud-card-title {
