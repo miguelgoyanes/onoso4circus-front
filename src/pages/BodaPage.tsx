@@ -476,7 +476,7 @@ export function BodaPage() {
               </label>
               <label className="crud-field">
                 <span>Apellidos</span>
-                <input value={apellidos} onChange={(e) => setApellidos(e.target.value)} required />
+                <input value={apellidos} onChange={(e) => setApellidos(e.target.value)} />
               </label>
             </div>
             <label className="crud-field">
