@@ -332,14 +332,17 @@
 }
 
 /* Tablero */
+/* Una sola fila de columnas con scroll horizontal: nunca se parten en dos filas. */
 .boda-tablero {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  display: flex;
   gap: 0.75rem;
-  align-items: start;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
 }
 
 .boda-columna {
+  flex: 0 0 15rem;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
