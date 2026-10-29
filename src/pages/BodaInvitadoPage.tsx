@@ -28,7 +28,7 @@ import { MenuAcciones } from "../components/boda/MenuAcciones";
 import {
   copiarAlPortapapeles,
   estadoDe,
-  etiquetaEstado,
+  etiquetaInvitado,
   fechaCorta,
 } from "../components/boda/estado";
 import {
@@ -681,13 +681,10 @@ export function BodaInvitadoPage() {
             )}
             <p className="boda-sub boda-cab-linea">
               <span className={`boda-pastilla boda-estado-${estado}`}>
-                {etiquetaEstado(estado)}
+                {etiquetaInvitado(invitado)}
               </span>
               {invitado.grupo?.nombre}
               {invitado.esPrueba && " · invitación de prueba"}
-              {varias &&
-                invitado.asistencia === true &&
-                ` · vienen ${invitado.asistentes} de ${invitado.personas.length}`}
               {invitado.aperturas.total > 0 &&
                 ` · abierta ${invitado.aperturas.total} ${invitado.aperturas.total === 1 ? "vez" : "veces"}`}
               {invitado.enviadoEn &&

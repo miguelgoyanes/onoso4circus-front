@@ -25,10 +25,12 @@ import { ImportarInvitadosModal } from '../components/boda/ImportarInvitadosModa
 import { MenuAcciones } from '../components/boda/MenuAcciones';
 import {
   copiarAlPortapapeles,
+  desglose,
   ESTADOS,
   estadoDe,
-  etiquetaEstado,
+  etiquetaInvitado,
   fechaCorta,
+  nombrePersona,
   type EstadoInvitado,
 } from '../components/boda/estado';
 import '../styles/crud-page.css';
@@ -37,12 +39,31 @@ import '../styles/boda.css';
 function subtitulo(i: InvitadoBoda): string {
   const partes: string[] = [];
   if (i.grupo) partes.push(i.grupo.nombre);
-  if (i.personas.length > 1) {
-    partes.push(i.asistencia === true ? `vienen ${i.asistentes} de ${i.personas.length}` : `${i.personas.length} personas`);
-  }
+  if (i.personas.length > 1) partes.push(`${i.personas.length} personas`);
   if (i.aperturas.total > 0 && i.aperturas.ultima) partes.push(`abierta ${i.aperturas.total}× · última ${fechaCorta(i.aperturas.ultima)}`);
   if (!i.activo) partes.push('desactivado');
   return partes.join(' · ');
+}
+
+// Aclaración cuando solo viene parte de la invitación: quién no viene (y, si falta alguien, quién no ha respondido).
+function aclaracion(i: InvitadoBoda): string | null {
+  if (estadoDe(i) !== 'parcial') return null;
+  const { noVienen, pendientes } = desglose(i);
+  const partes = [`No vienen: ${noVienen.map(nombrePersona).join(', ')}`];
+  if (pendientes.length > 0) partes.push(`sin responder: ${pendientes.map(nombrePersona).join(', ')}`);
+  return partes.join(' · ');
+}
+
+// "· vienen 5 de 9" para el encabezado de cada grupo.
+function resumenGrupo(miembros: InvitadoBoda[]): string {
+  let vienen = 0;
+  let total = 0;
+  for (const i of miembros) {
+    if (!i.activo) continue;
+    vienen += desglose(i).vienen.length;
+    total += i.personas.length;
+  }
+  return `· vienen ${vienen} de ${total}`;
 }
 
 interface AccionesFila {
@@ -65,8 +86,9 @@ function Fila({ i, acciones }: { i: InvitadoBoda; acciones: AccionesFila }) {
           {i.nombre} {i.apellidos}
         </span>
         <span className="boda-sub">{subtitulo(i)}</span>
+        {aclaracion(i) && <span className="boda-aclaracion">{aclaracion(i)}</span>}
       </div>
-      <span className={`boda-pastilla boda-estado-${estado}`}>{etiquetaEstado(estado)}</span>
+      <span className={`boda-pastilla boda-estado-${estado}`}>{etiquetaInvitado(i)}</span>
       <div className="boda-fila-acciones" onClick={(e) => e.stopPropagation()}>
         <button type="button" className="boda-btn boda-btn-suave" onClick={() => acciones.copiar(i)}>
           Copiar enlace
@@ -176,7 +198,7 @@ export function BodaPage() {
   }, [invitados, busqueda, filtroGrupo, filtroEstado]);
 
   const cuentaEstados = useMemo(() => {
-    const cuenta: Record<EstadoInvitado, number> = { 'sin-enviar': 0, enviada: 0, abierta: 0, si: 0, no: 0 };
+    const cuenta: Record<EstadoInvitado, number> = { 'sin-enviar': 0, enviada: 0, abierta: 0, si: 0, parcial: 0, no: 0 };
     for (const i of invitados ?? []) cuenta[estadoDe(i)] += 1;
     return cuenta;
   }, [invitados]);
@@ -200,9 +222,19 @@ export function BodaPage() {
   }
 
   const total = invitados?.length ?? 0;
-  const respondidos = cuentaEstados.si + cuentaEstados.no;
-  const personasConfirmadas = (invitados ?? []).reduce((total, i) => total + i.asistentes, 0);
-  const personasTotal = (invitados ?? []).reduce((total, i) => total + i.personas.length, 0);
+  const respondidos = cuentaEstados.si + cuentaEstados.parcial + cuentaEstados.no;
+  // Recuento por personas (lo que importa para el catering): una invitación de 4 aporta 4, vengan o no.
+  const personas = useMemo(() => {
+    const cuenta = { vienen: 0, noVienen: 0, pendientes: 0 };
+    for (const i of invitados ?? []) {
+      if (!i.activo) continue;
+      const d = desglose(i);
+      cuenta.vienen += d.vienen.length;
+      cuenta.noVienen += d.noVienen.length;
+      cuenta.pendientes += d.pendientes.length;
+    }
+    return { ...cuenta, total: cuenta.vienen + cuenta.noVienen + cuenta.pendientes };
+  }, [invitados]);
 
   function mostrarAviso(texto: string) {
     setAviso(texto);
@@ -347,17 +379,20 @@ export function BodaPage() {
         {total > 0 && (
           <section className="boda-resumen">
             <p className="boda-resumen-titulo">
-              <strong>{respondidos}</strong> de {total} han respondido
+              <strong>{personas.vienen}</strong> {personas.vienen === 1 ? 'persona viene' : 'personas vienen'}
             </p>
             <p className="boda-sub">
-              {personasConfirmadas} {personasConfirmadas === 1 ? 'persona confirmada' : 'personas confirmadas'} · {personasTotal}{' '}
-              invitadas en total
+              {personas.noVienen} {personas.noVienen === 1 ? 'no viene' : 'no vienen'} · {personas.pendientes} sin responder ·{' '}
+              {personas.total} invitadas en total
             </p>
             <div className="boda-barra" aria-hidden="true">
-              {ESTADOS.map((e) => (
-                <span key={e.valor} className={`boda-estado-${e.valor}`} style={{ flexGrow: cuentaEstados[e.valor] }} />
-              ))}
+              <span className="boda-estado-si" style={{ flexGrow: personas.vienen }} />
+              <span className="boda-estado-no" style={{ flexGrow: personas.noVienen }} />
+              <span className="boda-estado-sin-enviar" style={{ flexGrow: personas.pendientes }} />
             </div>
+            <p className="boda-sub boda-resumen-invitaciones">
+              Invitaciones: <strong>{respondidos}</strong> de {total} han respondido
+            </p>
             <div className="boda-leyenda">
               {ESTADOS.map((e) => (
                 <button
@@ -411,6 +446,7 @@ export function BodaPage() {
             <section key={grupo.id} className="boda-grupo">
               <h2>
                 {grupo.nombre} <span>{miembros.length}</span>
+                <span className="boda-grupo-personas">{resumenGrupo(miembros)}</span>
               </h2>
               {miembros.map((i) => (
                 <Fila key={i.id} i={i} acciones={acciones} />
@@ -435,6 +471,10 @@ export function BodaPage() {
                         {i.nombre} {i.apellidos}
                       </span>
                       <span className="boda-sub">{subtitulo(i)}</span>
+                      {i.personas.length > 1 && ['si', 'parcial', 'no'].includes(e.valor) && (
+                        <span className="boda-ficha-personas">{etiquetaInvitado(i)}</span>
+                      )}
+                      {aclaracion(i) && <span className="boda-aclaracion">{aclaracion(i)}</span>}
                     </div>
                   ))}
                 </div>

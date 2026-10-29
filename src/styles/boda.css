@@ -14,6 +14,9 @@
 .boda-estado-si {
   --estado: #2e9e5b;
 }
+.boda-estado-parcial {
+  --estado: #2f7fc4;
+}
 .boda-estado-no {
   --estado: #d64545;
 }
@@ -763,4 +766,31 @@
 .boda-persona-titulo {
   margin: 0.6rem 0 0;
   font-size: 0.95rem;
+}
+
+/* Invitaciones con varias personas: quién falta y cuántos vienen por grupo */
+.boda-aclaracion {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--estado);
+}
+
+.boda-ficha-personas {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--estado);
+}
+
+.boda-grupo h2 .boda-grupo-personas {
+  margin-left: 0.25rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.boda-resumen-invitaciones strong {
+  color: var(--color-text);
 }
